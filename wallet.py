@@ -54,7 +54,7 @@ class wallet():
     def save(self, fname):
         # Save wallet object to file using pickle module
         with open(fname, 'wb') as f:
-            pickle.dump(self, f, pickle.HIGHEST_PROTOCOL)
+            pickle.dump(self, f)
 
     def find_account(self, keyword, value):
         # Find account in wallet by matching keyword in account.data to value
@@ -106,8 +106,8 @@ class wallet():
                         bal[curr] += balances[curr]
             table = []
             for curr in bal:
-                table.append([curr,bal[curr],bal[curr]*pr[curr]])
-            print('\n',tabulate(table, headers=['Currency','Balance','BTC']),'\n')
+                table.append([curr,bal[curr],bal[curr]*pr[curr],100*bal[curr]*pr[curr]/total])
+            print('\n',tabulate(table, headers=['Currency','Balance','BTC','Percent']),'\n')
 
     def __repr__(self):
         # Print wallet object

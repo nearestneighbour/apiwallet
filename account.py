@@ -5,7 +5,7 @@ from time import time
 # Cryptopyfolio wallet object as specified in wallet.py. Account classes should
 # be a child of the account class specified below.
 
-interval = 1
+interval = 60
 
 class account():
     def __init__(self, data={}):
