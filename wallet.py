@@ -2,11 +2,10 @@ from tabulate import tabulate
 import requests
 import json
 import pickle
-# TO DO
+# IDEAS
 # add eth_xpub account type
 # add open order functionality
 # add wallet.balance to show other currencies in addition to BTC
-# link to telegram
 #
 # cryptopyfolio
 

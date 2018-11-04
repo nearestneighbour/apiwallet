@@ -19,11 +19,21 @@ class kraken_account(account):
         super().__init__(meta)
         self.u['price'] = updatable(self.load_prices, 60, False)
 
-    def value_self(self):
-        return None
+    def value_self(self): # base curr: BTC
+        v = {}
+        bal = self.u['balance'].getdata()
+        pr = self.u['price'].getdata()
+        for c in bal:
+            v[c] = bal[c] * pr[c]
+        return v
 
     def value_base(self, base):
-        return None
+        if base == 'BTC':
+            return self.value_self()
+        elif base == 'EUR':
+            return self.value_self() / self.u['price']['EUR']
+        elif base == 'USD':
+            return self.value_self() / self.u['price']['USD']
 
     def load_balance(self):
         bal = {}
@@ -38,13 +48,11 @@ class kraken_account(account):
         return bal
 
     def load_prices(self):
-        pr = {}
-        pairs = ''
+        pr = {'BTC':1.0}
+        pairs = 'XBTEUR,XBTUSD,'
         for curr in self.u['balance'].getdata():
-            if curr == 'EUR' or curr == 'USD':
-                pairs += 'XBT' + curr + ','
-            elif curr == 'BTC':
-                pr[curr] = 1.0
+            if curr == 'EUR' or curr == 'USD' or curr == 'BTC':
+                continue
             else:
                 pairs += curr + 'XBT,'
         data = ka.api_query_public('Ticker',{'pair':pairs[:-1]})['result']
@@ -53,6 +61,6 @@ class kraken_account(account):
                 pr[p[:3]] = float(data[p]['c'][0])
             elif p[1:4] == 'XBT': # XBTEUR or XBTUSD
                 pr[p[5:]] = 1/float(data[p]['c'][0])
-            else:
+            else: # trade pair listed in 'currencies'
                 pr[p[1:4]] = float(data[p]['c'][0])
         return pr

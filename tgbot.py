@@ -47,7 +47,7 @@ class tgbot(telepot.helper.ChatHandler):
     def on_close(self, dd):
         pass
 
-with open('data/token') as f:
+with open('keys/tgtoken') as f:
     token = f.read()[:-1]
 bot = telepot.DelegatorBot(token, [
     pave_event_space()(
