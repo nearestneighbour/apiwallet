@@ -6,6 +6,9 @@ from btcpy.structs.address import P2shAddress, P2wpkhAddress
 
 setup('mainnet')
 
+# TO DO:
+# Separate addresses into different balances (name each, e.g. 'change0, spend1')
+
 class btc_xpub(account):
     def __init__(self, xpub=None, file=None, address='nested', data={}):
         super().__init__(data)
@@ -14,23 +17,10 @@ class btc_xpub(account):
                 xpub = f.readlines()[0].strip()
         self.xpub = ExtendedPublicKey.decode(xpub)
         self.address = address
-        self.last_spend = -1
-        self.last_change = -1
 
-    def derive_key(self, change, index):
-        path = './'+str(change)+'/'+str(index)
-        hash = self.xpub.derive(path).key.hash()
-        if self.address == 'nested':
-            return str(P2shAddress.from_script(P2wpkhAddress(hash, version=0).to_script()))
-
-    @staticmethod
-    def addr_is_used(addr):
-        url = 'https://blockchain.info/q/getreceivedbyaddress/' + addr
-        return float(requests.get(url,timeout=10).text) != 0
-
-    def load_data(self):
-        self.balance['BTC'] = 0
-        for change in [0,1]:
+    def load_balance(self):
+        bal = 0
+        for change in [False, True]:
             used = True
             i = 0
             while used:
@@ -38,11 +28,29 @@ class btc_xpub(account):
                 i += 1
                 url = 'https://blockchain.info/q/addressbalance/' + pk
                 b = float(requests.get(url, timeout=10).text) / 100000000
-                self.balance['BTC'] += b
+                bal += b
                 if b == 0:
-                    used = self.addr_is_used(pk)
-            if change == 0:
-                self.last_spend = i-2
-            else:
-                self.last_change = i-2
-        self.btc = self.balance['BTC']
+                    used = address_is_used(pk)
+            #if change:
+            #    last_change = i-2
+            #else:
+            #    last_spent = i-2
+        return bal#, last_spent, last_change
+
+    def value_self(self):
+        return self.u['balance'].getdata()
+
+    def value_base(self, base):
+        if base == 'BTC':
+            return self.value_self()
+        return None
+
+    def derive_key(self, change, index):
+        path = './'+str(change)+'/'+str(index)
+        hash = self.xpub.derive(path).key.hash()
+        if self.address == 'nested':
+            return str(P2shAddress.from_script(P2wpkhAddress(hash, version=0).to_script()))
+
+def address_is_used(addr):
+    url = 'https://blockchain.info/q/getreceivedbyaddress/' + addr
+    return float(requests.get(url,timeout=10).text) != 0

@@ -1,6 +1,8 @@
 from account import account
 from lib import bitmex
 
+# To do: separate (un)realized profit, available margin etc?
+
 class bitmex_account(account):
     def __init__(self, api_key=None, api_secret=None, file=None, data={}):
         super().__init__(data)
@@ -11,7 +13,14 @@ class bitmex_account(account):
                 api_secret = text[1].strip()
         self.api = bitmex.BitMEX(base_url='https://www.bitmex.com/api/v1/', apiKey=api_key, apiSecret=api_secret)
 
-    def load_data(self):
+    def load_balance(self):
         data = self.api._curl_bitmex(path='user/margin', verb='GET', timeout=10)
-        self.balance['BTC'] = data['marginBalance'] / 100000000
-        self.btc = self.balance['BTC']
+        return {'BTC': data['marginBalance'] / 100000000}
+
+    def value_self(self):
+        return self.u['balance'].getdata()
+
+    def value_base(self, base):
+        if base == 'BTC':
+            return self.value_self()
+        return None

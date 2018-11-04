@@ -1,7 +1,8 @@
 from account import account
 from lib.bittrex import Bittrex
 
-currencies = {'XXBT':'BTC','XETH':'ETH','ZEUR':'EUR','ZUSD':'USD','XLTC':'LTC','XXLM':'XLM'}
+#currencies = {'XXBT':'BTC','XETH':'ETH','ZEUR':'EUR','ZUSD':'USD','XLTC':'LTC','XXLM':'XLM'}
+# ???
 
 class bittrex_account(account):
     def __init__(self, api_key=None, api_secret=None, file=None, data={}):
@@ -12,19 +13,35 @@ class bittrex_account(account):
                 api_key = text[0].strip()
                 api_secret = text[1].strip()
         self.api = Bittrex(api_key,api_secret)
+        self.u['price'] = updatable(self.load_btcpr, 60, False)
 
-    def load_data(self):
-        self.btc = 0
+    def load_balance(self):
+        bal = {}
         data = self.api.get_balances()['result']
         for curr in data:
             if curr['Balance'] < 0.00002:
                 continue
-            self.balance[curr['Currency']] = curr['Balance']
-            if curr['Currency'] == 'BTC':
-                self.btc += self.balance['BTC']
-            else:
-                self.btcprice[curr['Currency']] = self.get_btcpr(curr['Currency'])
-                self.btc += self.balance[curr['Currency']] * self.btcprice[curr['Currency']]
+            bal[curr['Currency']] = curr['Balance']
+        return bal
 
-    def get_btcpr(self, curr):
-        return self.api.get_ticker('BTC-' + curr)['result']['Last']
+    def value_self(self):
+        v = {}
+        bal = self.u['balance'].getdata()
+        btcpr = self.u['price'].getdata()
+        for curr in bal:
+            v[curr] = bal[curr] * btcpr[curr]
+
+    def value_base(self, base):
+        if base == 'BTC':
+            return self.value_self()
+        return None
+
+    def load_btcpr(self):
+        b = {}
+        for curr in self.u['balance'].getdata(False):
+            if curr == 'BTC':
+                b[curr] = 1.0
+            else:
+                data = self.api.get_ticker('BTC-'+curr)
+                b[curr] = float(data['result']['Last'])
+        return b

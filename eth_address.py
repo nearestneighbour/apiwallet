@@ -10,15 +10,21 @@ class eth_address(account):
             with open(file) as f:
                 pubkey = f.readlines()[0].strip()
         self.pubkey = pubkey
-        self.balance['ETH'] = 0
+        self.u['ethbtc'] = updatable(get_ethbtc, 60, False)
 
-    def load_data(self):
+    def load_balance(self):
         url = 'https://api.etherscan.io/api?module=account&action=balance&address=' + self.pubkey + '&apikey=' + apikey
-        self.balance['ETH'] = float(requests.get(url,timeout=15).json()['result'])/(10**18)
-        self.btcprice['ETH'] = self.get_ethbtc()
-        self.btc = self.balance['ETH'] * self.btcprice['ETH']
+        bal = float(requests.get(url,timeout=15).json()['result'])/(10**18)
+        return {'ETH': bal}
 
-    @staticmethod
-    def get_ethbtc():
-        url = 'https://api.kraken.com/0/public/Ticker?pair=ethxbt'
-        return float(requests.get(url,timeout=15).json()['result']['XETHXXBT']['c'][0])
+    def value_self(self):
+        return self.u['balance'].getdata()
+
+    def value_base(self, base):
+        if base == 'ETH':
+            return {'ETH': self.value_self() * self.u['ethbtc'].getdata()}
+        return None
+
+def get_ethbtc():
+    url = 'https://api.kraken.com/0/public/Ticker?pair=ethxbt'
+    return float(requests.get(url,timeout=15).json()['result']['XETHXXBT']['c'][0])
