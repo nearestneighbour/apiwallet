@@ -1,13 +1,10 @@
-from account import account
+from account import account, updatable
 import requests
-from updatable import updatable
 from time import time
 
-# to do: implement get_currency
+# To do: add token data
 
 class eos_account(account):
-    # To do: add token data
-    # Add update mechanism for balance data
     def __init__(self, accname, meta={}):
         # accname: name of EOS account
         self.name = accname
@@ -30,7 +27,7 @@ class eos_account(account):
         elif base == 'ETH':
             basepr = self.u['eoseth'].getdata()
         else:
-            return None
+            return None # raise error
         v1 = self.value_self()
         v2 = {}
         for curr in v1:

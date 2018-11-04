@@ -1,4 +1,4 @@
-from account import account
+from account import account, updatable
 import requests
 from btcpy.setup import setup
 from btcpy.structs.hd import ExtendedPublicKey
@@ -8,15 +8,16 @@ setup('mainnet')
 
 # TO DO:
 # Separate addresses into different balances (name each, e.g. 'change0, spend1')
+# Alternatives for address='nested'
 
 class btc_xpub(account):
     def __init__(self, xpub=None, file=None, address='nested', data={}):
-        super().__init__(data)
         if xpub == None:
             with open(file) as f:
                 xpub = f.readlines()[0].strip()
         self.xpub = ExtendedPublicKey.decode(xpub)
         self.address = address
+        super().__init__(data)
 
     def load_balance(self):
         bal = 0
@@ -50,6 +51,7 @@ class btc_xpub(account):
         hash = self.xpub.derive(path).key.hash()
         if self.address == 'nested':
             return str(P2shAddress.from_script(P2wpkhAddress(hash, version=0).to_script()))
+        return None # raise error
 
 def address_is_used(addr):
     url = 'https://blockchain.info/q/getreceivedbyaddress/' + addr

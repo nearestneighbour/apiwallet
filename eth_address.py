@@ -1,15 +1,16 @@
-from account import account
+from account import account, updatable
 import requests
 
-apikey = '3ZW92AJRI8TDPPC47BCS81K7WXBG84ZE3T'
+apikey = '3ZW92AJRI8TDPPC47BCS81K7WXBG84ZE3T' # how to solve? (e.g. upload to Github)
+# store in file like pubkey?
 
 class eth_address(account):
     def __init__(self, pubkey=None, file=None, data={}):
-        super().__init__(data)
         if pubkey == None:
             with open(file) as f:
                 pubkey = f.readlines()[0].strip()
         self.pubkey = pubkey
+        super().__init__(data)
         self.u['ethbtc'] = updatable(get_ethbtc, 60, False)
 
     def load_balance(self):

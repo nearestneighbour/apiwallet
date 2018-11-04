@@ -1,18 +1,15 @@
-from account import account
+from account import account, updatable
 from lib.bittrex import Bittrex
-
-#currencies = {'XXBT':'BTC','XETH':'ETH','ZEUR':'EUR','ZUSD':'USD','XLTC':'LTC','XXLM':'XLM'}
-# ???
 
 class bittrex_account(account):
     def __init__(self, api_key=None, api_secret=None, file=None, data={}):
-        super().__init__(data)
         if api_key == None:
             with open(file) as f:
                 text = f.readlines()
                 api_key = text[0].strip()
                 api_secret = text[1].strip()
-        self.api = Bittrex(api_key,api_secret)
+        self.api = Bittrex(api_key, api_secret)
+        super().__init__(data)
         self.u['price'] = updatable(self.load_btcpr, 60, False)
 
     def load_balance(self):
@@ -30,6 +27,7 @@ class bittrex_account(account):
         btcpr = self.u['price'].getdata()
         for curr in bal:
             v[curr] = bal[curr] * btcpr[curr]
+        return v
 
     def value_base(self, base):
         if base == 'BTC':

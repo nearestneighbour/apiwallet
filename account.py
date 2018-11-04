@@ -18,38 +18,26 @@ class account:
 
     def get_currency(self, curr):
         # Return total balance of a particular currency (e.g. EOS+CPU+NET)
-        pass
+        # Default behaviour:
+        b = self.u['balance'].getdata()
+        if len(b) == 1:
+            if curr in b:
+                return b[curr]
+        raise NotImplementedError('method get_currency not implemented in child class')
 
     def load_balance(self):
         # Load balance data from API and update balances
         raise NotImplementedError('method load_balance not implemented in child class')
 
-    def value_base(self, base):
-        # Return balances converted to base currency
-        raise NotImplementedError('method value_base not implemented in child class')
-
     def value_self(self):
         # Return balances converted to account primary currency
         raise NotImplementedError('method value_self not implemented in child class')
 
-    def total_btc(self):
-        # Return sum of balances (update account if outdated)
-
-        # DEPRECATED
-        raise DeprecationWarning('method total_btc is deprecated')
-
-        if self.btc == None or self.get_age() > interval:
-            self.load_data()
-            self.updated = time()
-        return self.btc
-
-    def get_age(self):
-        # Get time last account update
-
-        # DEPRECATED
-        raise DeprecationWarning('method get_age is deprecated')
-
-        if self.updated == None:
-            return -1
-        else:
-            return time()-self.updated
+    def value_base(self, base):
+        # Return balances converted to base currency
+        # Default behaviour:
+        b = self.u['balance'].getdata()
+        if len(b) == 1:
+            if base in b:
+                return b[curr]
+        raise NotImplementedError('method value_base not implemented in child class')
