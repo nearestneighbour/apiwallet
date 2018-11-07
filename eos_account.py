@@ -1,4 +1,5 @@
-from account import account, updatable
+from account import account
+from updatable import updatable
 import requests
 from time import time
 
@@ -27,7 +28,7 @@ class eos_account(account):
         elif base == 'ETH':
             basepr = self.u['eoseth'].getdata()
         else:
-            return None # raise error
+            raise NotImplementedError('Currency '+base+' not implemented in EOSACC')
         v1 = self.value_self()
         v2 = {}
         for curr in v1:
@@ -55,11 +56,11 @@ class eos_account(account):
 
     def get_currency(self, curr):
         # idea: if curr==(CPU or NET), return bytes/seconds
-        if curr == 'EOS':
+        if curr == 'EOS': # return total value of account in EOS (EOS+RAM+CPU+NET)
             data = self.value_self()
             return sum([data[c] for c in data])
-        elif curr == 'RAM':
-            return self.u['balance'].getdata()['RAM']
+        else:
+            return super().get_currency(curr)
 
 def load_eosbtc():
     # Get EOS/BTC price from Kraken

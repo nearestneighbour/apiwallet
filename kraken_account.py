@@ -1,4 +1,5 @@
-from account import account, updatable
+from account import account
+from updatable import updatable
 import lib.krakenapi as ka
 
 # TO DO; choose self-base currency (EUR, USD, BTC, maybe ETH)
@@ -34,6 +35,8 @@ class kraken_account(account):
             return self.value_self() / self.u['price']['EUR']
         elif base == 'USD':
             return self.value_self() / self.u['price']['USD']
+        else:
+            raise NotImplementedError('Currency '+base+' not implemented in KRAKEN')
 
     def load_balance(self):
         bal = {}

@@ -3,6 +3,11 @@
 # Cryptopyfolio wallet object as specified in wallet.py. Account classes should
 # be a child of the account class specified below.
 
+# 3 types of accounts:
+# - Single currency accounts (Bitmex*, BTCAddress, BTCXPUB, ETHAdress*)
+# - Smart contract accounts (EOSAccount): tokens
+# - Exchange accounts (Kraken, Bittrex): multiple currencies, what base?
+
 from updatable import updatable
 
 class account:
@@ -16,14 +21,14 @@ class account:
         # Return dict of balances for account (see account specification)
         return self.u['balance'].getdata()
 
-    def get_currency(self, curr):
+    def get_currency(self, curr): # rename to currency_total
         # Return total balance of a particular currency (e.g. EOS+CPU+NET)
         # Default behaviour:
         b = self.u['balance'].getdata()
-        if len(b) == 1:
-            if curr in b:
-                return b[curr]
-        raise NotImplementedError('method get_currency not implemented in child class')
+        if curr in b:
+            return b[curr]
+        else:
+            return 0
 
     def load_balance(self):
         # Load balance data from API and update balances
@@ -31,13 +36,16 @@ class account:
 
     def value_self(self):
         # Return balances converted to account primary currency
+        # Default behaviour:
+        b = self.u['balance'].getdata()
+        if len(b) == 1:
+            return b
         raise NotImplementedError('method value_self not implemented in child class')
 
     def value_base(self, base):
         # Return balances converted to base currency
         # Default behaviour:
         b = self.u['balance'].getdata()
-        if len(b) == 1:
-            if base in b:
-                return b[curr]
+        if len(b) == 1 and base in b:
+            return b
         raise NotImplementedError('method value_base not implemented in child class')

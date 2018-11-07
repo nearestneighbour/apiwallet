@@ -2,6 +2,7 @@ from tabulate import tabulate
 import requests
 import json
 import pickle
+from updatable import updatable
 # IDEAS
 # add eth_xpub account type
 # add open order functionality
@@ -17,8 +18,9 @@ class wallet:
         self.accounts = []
         for acc in args:
             self.add_account(acc)
-        self.u['btceur'] = updater(load_btceur, 60, False) # See end of file for function declarations
-        self.u['btcusd'] = updater(load_btcusd, 60, False)
+        self.u = {}
+        self.u['btceur'] = updatable(load_btceur, 60, False) # See end of file for function declarations
+        self.u['btcusd'] = updatable(load_btcusd, 60, False)
 
     def add_account(self, account):
         # Add account to wallet. If no add.data['name'] is specified, acc.data['name']
@@ -35,27 +37,40 @@ class wallet:
             self.accounts = sorted(namedacc, key=k)
             self.accounts += idacc
 
-    def total_btc(self):
+    def value_btc(self):
         # Get total BTC worth of accounts in wallet
         # Accounts are updated if outdated
+        btc = 0
         for acc in self.accounts:
-            self.btc += acc.value_base('BTC')
-        return self.btc
+            try:
+                a = acc.value_base('BTC')
+            except NotImplementedError:
+                raise NotImplementedError('Base BTC not implemented for acc '+acc.meta['name'])
+            btc += sum([a[i] for i in a])
+        return btc
 
-    def total_eur(self):
+    def value_eur(self):
         # Get total EUR worth of accounts in wallet
-        return self.total_btc() * self.u['btceur'].getdata()
+        return self.value_btc() * self.u['btceur'].getdata()
 
-    def total_usd(self):
+    def value_usd(self):
         # Get total USD worth of accounts in wallet
-        return self.total_btc() * self.u['btcusd'].getdata()
+        return self.value_btc() * self.u['btcusd'].getdata()
+
+    def currency_total(self, curr):
+        tot = 0
+        for acc in self.accounts:
+            tot += acc.get_currency(curr)
+        return tot
 
     def save(self, fname):
         # Save wallet object to file using pickle module
+        # Does this store class functions as well? (i.e. does it not update with the code)
         with open(fname, 'wb') as f:
             pickle.dump(self, f)
 
     def show(self, what):
+        return
         # Print overview of accounts in wallet. Print total BTC per account,
         # amount per currency per account, or amount per currency
         total = self.total_btc() # Update wallet
@@ -86,7 +101,7 @@ class wallet:
             bal = {}
             pr = {}
             for acc in self.accounts:
-                balances acc.get_balances()
+                balances = acc.get_balances()
                 values = acc.get_values()
                 for curr in balances:
                     if curr not in bal:
