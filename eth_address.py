@@ -12,12 +12,16 @@ class eth_address(account):
                 pubkey = f.readlines()[0].strip()
         self.pubkey = pubkey
         super().__init__(meta)
-        self.u['ethbtc'] = updatable(get_ethbtc, 60, False)
+        self.u['ethbtc'] = None
 
-    def value_base(self, base):
-        if base == 'BTC':
-            return {'ETH':self.value_self()['ETH'] * self.u['ethbtc'].getdata()}
-        raise NotImplementedError('Currency '+base+' not implemented in ETHACC')
+
+    def balance_curr(self, curr):
+        if curr == 'BTC':
+            if self.u['ethbtc'] == None:
+                self.u['ethbtc'] = updatable(get_ethbtc, 60, False)
+            return {'ETH':self.balance_native['ETH'] * self.u['ethbtc'].data}
+        raise NotImplementedError('Currency '+curr+' not implemented in ETHACC')
+
 
     def load_balance(self):
         url = 'https://api.etherscan.io/api?module=account&action=balance&address=' + self.pubkey + '&apikey=' + apikey

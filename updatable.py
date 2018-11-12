@@ -7,24 +7,26 @@ class updatable:
         if update:
             self.update() # Set self.data and self.updatetime
         else:
-            self.data = None
+            self.mydata = None
             self.updatetime = None
         self.interval = interval
 
     def update(self, interval=None):
         # Set data
-        self.data = self.updatefunc()
+        self.mydata = self.updatefunc()
         if interval != None:
-            self.interval = interv
+            self.interval = interval
         self.updatetime = time()
 
-    def getdata(self, update=True):
+    @property
+    def data(self):
         # Get data
-        if update and self.outdated():
+        if self.outdated:
             self.update()
-        return self.data
+        return self.mydata
 
+    @property
     def outdated(self):
-        if self.data == None:
+        if self.mydata == None:
             return True
         return (time()-self.updatetime) > self.interval

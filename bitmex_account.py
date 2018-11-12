@@ -13,6 +13,7 @@ class bitmex_account(account):
         self.api = bitmex.BitMEX(base_url='https://www.bitmex.com/api/v1/', apiKey=api_key, apiSecret=api_secret)
         super().__init__(meta)
 
+
     def load_balance(self):
         data = self.api._curl_bitmex(path='user/margin', verb='GET', timeout=10)
         return {'BTC': data['marginBalance'] / 100000000}

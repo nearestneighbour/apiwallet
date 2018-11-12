@@ -14,26 +14,41 @@ class eos_account(account):
         self.u['eoseth'] = updatable(load_eoseth, 30, False)
         self.u['rampr'] = updatable(load_ramprice, 30)
 
-    def value_self(self):
+
+    @property
+    def balance(self): # overwrite super().balance(), see balance_ext(self)
+        bal = self.balance_ext_native()
+        return {'EOS':sum([bal[c] for c in bal])}
+
+    def balance_curr(self, curr):
+        if curr == 'BTC':
+            basepr = self.u['eosbtc'].data
+        elif curr == 'ETH':
+            basepr = self.u['eoseth'].data
+        else:
+            raise NotImplementedError('Currency '+curr+' not implemented in EOSACC')
+        return {'EOS':self.balance_native['EOS'] * basepr}
+
+
+    def balance_ext(self): # extended balance, separate NET/CPU/RAM/LIQUID
+        return super().balance
+
+    def balance_ext_native(self):
         v = {}
-        bal = self.u['balance'].getdata()
+        bal = self.balance_ext()
         for c in ['EOS','CPU','NET']:
             v[c] = bal[c]
-        v['RAM'] = bal['RAM'] * self.u['rampr'].getdata()
+        v['RAM'] = bal['RAM'] * self.u['rampr'].data
         return v
 
-    def value_base(self, base):
-        if base == 'BTC':
-            basepr = self.u['eosbtc'].getdata()
-        elif base == 'ETH':
-            basepr = self.u['eoseth'].getdata()
+
+    def currency(self, curr):
+        # idea: if curr==(CPU or NET), return bytes/seconds
+        if curr == 'EOS': # return total value of account in EOS (EOS+RAM+CPU+NET)
+            return sum([data[c] for c in self.balance_native])
         else:
-            raise NotImplementedError('Currency '+base+' not implemented in EOSACC')
-        v1 = self.value_self()
-        v2 = {}
-        for curr in v1:
-            v2[curr] = v1[curr] * basepr
-        return v2
+            return super().currency(curr)
+
 
     def load_balance(self):
         url = 'http://mainnet.eoscanada.com/v1/chain/get_account'
@@ -53,14 +68,6 @@ class eos_account(account):
         # Get available RAM in bytes
         bal['RAM'] = float(data['ram_quota'])-float(data['ram_usage'])
         return bal
-
-    def get_currency(self, curr):
-        # idea: if curr==(CPU or NET), return bytes/seconds
-        if curr == 'EOS': # return total value of account in EOS (EOS+RAM+CPU+NET)
-            data = self.value_self()
-            return sum([data[c] for c in data])
-        else:
-            return super().get_currency(curr)
 
 def load_eosbtc():
     # Get EOS/BTC price from Kraken

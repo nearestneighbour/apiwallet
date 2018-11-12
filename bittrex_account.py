@@ -13,6 +13,22 @@ class bittrex_account(account):
         super().__init__(meta)
         self.u['price'] = updatable(self.load_btcpr, 60, False)
 
+
+    @property
+    def balance_native(self):
+        v = {}
+        bal = self.balance
+        btcpr = self.u['price'].data
+        for curr in bal:
+            v[curr] = bal[curr] * btcpr[curr]
+        return v
+
+    def balance_curr(self, curr):
+        if curr == 'BTC':
+            return self.balance_native
+        raise NotImplementedError('Currency '+curr+' not implemented in BITTREX')
+
+
     def load_balance(self):
         bal = {}
         data = self.api.get_balances()['result']
@@ -21,22 +37,9 @@ class bittrex_account(account):
                 bal[curr['Currency']] = curr['Balance']
         return bal
 
-    def value_self(self):
-        v = {}
-        bal = self.u['balance'].getdata()
-        btcpr = self.u['price'].getdata()
-        for curr in bal:
-            v[curr] = bal[curr] * btcpr[curr]
-        return v
-
-    def value_base(self, base):
-        if base == 'BTC':
-            return self.value_self()
-        return None
-
     def load_btcpr(self):
         b = {}
-        for curr in self.u['balance'].getdata(False):
+        for curr in self.balance:
             if curr == 'BTC':
                 b[curr] = 1.0
             else:

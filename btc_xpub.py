@@ -18,6 +18,7 @@ class btc_xpub(account):
         self.xpub = ExtendedPublicKey.decode(xpub)
         super().__init__(meta)
 
+
     def load_balance(self):
         bal = 0
         for change in [0, 1]:

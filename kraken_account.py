@@ -20,23 +20,26 @@ class kraken_account(account):
         super().__init__(meta)
         self.u['price'] = updatable(self.load_prices, 60, False)
 
-    def value_self(self): # base curr: BTC
+
+    @property
+    def balance_native(self): # base curr: BTC
         v = {}
-        bal = self.u['balance'].getdata()
-        pr = self.u['price'].getdata()
+        bal = self.balance
+        pr = self.u['price'].data
         for c in bal:
             v[c] = bal[c] * pr[c]
         return v
 
-    def value_base(self, base):
-        if base == 'BTC':
-            return self.value_self()
-        elif base == 'EUR':
-            return self.value_self() / self.u['price']['EUR']
-        elif base == 'USD':
-            return self.value_self() / self.u['price']['USD']
+    def balance_curr(self, curr):
+        if curr == 'BTC':
+            return self.balance_native
+        elif curr == 'EUR':
+            return self.balance_native / self.u['price']['EUR']
+        elif curr == 'USD':
+            return self.balance_native / self.u['price']['USD']
         else:
-            raise NotImplementedError('Currency '+base+' not implemented in KRAKEN')
+            raise NotImplementedError('Currency '+curr+' not implemented in KRAKEN')
+
 
     def load_balance(self):
         bal = {}
@@ -53,7 +56,7 @@ class kraken_account(account):
     def load_prices(self):
         pr = {'BTC':1.0}
         pairs = 'XBTEUR,XBTUSD,'
-        for curr in self.u['balance'].getdata():
+        for curr in self.balance:
             if curr == 'EUR' or curr == 'USD' or curr == 'BTC':
                 continue
             else:

@@ -9,6 +9,7 @@ class btc_address(account):
         self.pubkey = pubkey
         super().__init__(meta)
 
+
     def load_balance(self):
         url = 'https://blockchain.info/q/addressbalance/' + self.pubkey
         return {'BTC': float(requests.get(url, timeout=10).text) / 100000000}
