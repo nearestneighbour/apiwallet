@@ -20,8 +20,8 @@ class wallet:
             self.add_account(acc)
         self.u = {
             # See end of file for function declarations
-            'btceur': updatable(load_btceur, 60, False),
-            'btcusd': updatable(load_btcusd, 60, False)
+            'btceur': updatable(load_btceur, 60),
+            'btcusd': updatable(load_btcusd, 60)
         }
 
     def add_account(self, account):

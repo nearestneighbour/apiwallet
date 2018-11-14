@@ -18,11 +18,11 @@ ethacc = eth_address(file='keys/ethpub', meta={'name':'eth'})
 bittrexacc = bittrex_account(file='keys/bittrex', meta={'name':'bittrex'})
 
 w = wallet(ledgeracc, bitmexacc, ethacc, krakenacc, eosacc, bittrexacc, eos_oldacc)
-print('Total BTC: ', w.total_btc())
-print('Total EUR: ', w.total_eur())
+print('Total BTC: ', w.total_btc)
+print('Total EUR: ', w.total_eur)
 print('Balance:')
-bal = w.balance()
-bbal = w.balance_btc()
+bal = w.balance
+bbal = w.balance_btc
 for c in bal:
     if bbal[c] > 0.0002:
         print(c, ': ', bal[c], bbal[c])

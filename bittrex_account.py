@@ -11,7 +11,7 @@ class bittrex_account(account):
                 api_secret = text[1].strip()
         self.api = Bittrex(api_key, api_secret)
         super().__init__(meta)
-        self.u['price'] = updatable(self.load_btcpr, 60, False)
+        self.u['price'] = updatable(self.load_btcpr)
 
 
     @property

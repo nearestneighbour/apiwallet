@@ -12,13 +12,11 @@ class eth_address(account):
                 pubkey = f.readlines()[0].strip()
         self.pubkey = pubkey
         super().__init__(meta)
-        self.u['ethbtc'] = None
+        self.u['ethbtc'] = updatable(get_ethbtc)
 
 
     def balance_curr(self, curr):
         if curr == 'BTC':
-            if self.u['ethbtc'] == None:
-                self.u['ethbtc'] = updatable(get_ethbtc, 60, False)
             return {'ETH':self.balance_native['ETH'] * self.u['ethbtc'].data}
         raise NotImplementedError('Currency '+curr+' not implemented in ETHACC')
 

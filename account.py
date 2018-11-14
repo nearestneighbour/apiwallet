@@ -13,7 +13,7 @@ from updatable import updatable
 class account:
     def __init__(self, meta={}):
         self.meta = meta
-        self.u = {'balance': updatable(self.load_balance, 300)}
+        self.u = {'balance': updatable(self.load_balance)}
         # does this call account.load_balances or (child class).load_balances?
 
 # BALANCE RELATED

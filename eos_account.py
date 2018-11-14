@@ -10,18 +10,21 @@ class eos_account(account):
         # accname: name of EOS account
         self.name = accname
         super().__init__(meta)
-        self.u['eosbtc'] = updatable(load_eosbtc, 30, False) # See end of file for function declarations
-        self.u['eoseth'] = updatable(load_eoseth, 30, False)
-        self.u['rampr'] = updatable(load_ramprice, 30)
+        self.u['tokens'] = updatable(self.load_tokenbalance) # data[0]: balances, data[1] balances in EOS
+        self.u['rampr'] = updatable(load_ramprice)
+        self.u['eosbtc'] = updatable(load_eosbtc)
+        self.u['eoseth'] = updatable(load_eoseth)
 
 
     @property
-    def balance(self): # overwrite super().balance(), see balance_ext(self)
-        bal = self.balance_ext_native()
+    def balance(self): # overwrite super().balance, see balance_ext(self)
+        bal = self.balance_extended_native()
         return {'EOS':sum([bal[c] for c in bal])}
 
     def balance_curr(self, curr):
-        if curr == 'BTC':
+        if curr == 'EOS':
+            return self.balance_native['EOS']
+        elif curr == 'BTC':
             basepr = self.u['eosbtc'].data
         elif curr == 'ETH':
             basepr = self.u['eoseth'].data
@@ -30,15 +33,17 @@ class eos_account(account):
         return {'EOS':self.balance_native['EOS'] * basepr}
 
 
-    def balance_ext(self): # extended balance, separate NET/CPU/RAM/LIQUID
+    def balance_extended(self): # extended balance, separate NET/CPU/RAM/LIQUID/tokens
         return super().balance
 
-    def balance_ext_native(self):
+    def balance_extended_native(self):
         v = {}
-        bal = self.balance_ext()
-        for c in ['EOS','CPU','NET']:
-            v[c] = bal[c]
+        bal = self.balance_extended()
+        for c in ['EOS','CPU','NET','DEL']:
+            if c in bal:
+                v[c] = bal[c]
         v['RAM'] = bal['RAM'] * self.u['rampr'].data
+        v.update(self.u['tokens'].data[1]) # add tokens
         return v
 
 
@@ -57,17 +62,38 @@ class eos_account(account):
         bal = {}
         if 'core_liquid_balance' in data:
             bal['EOS'] = float(data['core_liquid_balance'][:-4]) # change 'EOS' to 'LIQ' oid?
-        else:
-            bal['EOS'] = 0
-        bal['CPU'] = float(data['cpu_weight'])/10000
-        bal['NET'] = float(data['net_weight'])/10000
+        if data['self_delegated_bandwidth'] != None:
+            bal['CPU'] = float(data['self_delegated_bandwidth']['cpu_weight'][:-4])
+            bal['NET'] = float(data['self_delegated_bandwidth']['net_weight'][:-4])
+            bal['DEL'] = data['voter_info']['staked'] / 10000
+            bal['DEL'] -= (bal['CPU'] + bal['NET'])
+        elif data['voter_info']['staked'] > 0:
+            bal['DEL'] = data['voter_info']['staked'] / 10000
         # Add refunding EOS to staked EOS
         if data['refund_request'] != None:
             bal['CPU'] += float(data['refund_request']['cpu_amount'][:-4])
             bal['NET'] += float(data['refund_request']['net_amount'][:-4])
         # Get available RAM in bytes
         bal['RAM'] = float(data['ram_quota'])-float(data['ram_usage'])
+        bal.update(self.u['tokens'].data[0]) # add tokens
         return bal
+
+    def load_tokenbalance(self):
+        priceurl = 'https://api.newdex.io/v1/ticker/all'
+        pricedata = requests.get(priceurl).json()['data']
+        balanceurl = 'http://mainnet.eoscanada.com/v1/chain/get_currency_balance'
+        bal = {}
+        native = {}
+        for c in pricedata:
+            if c['volume'] < 100: # arbitrary threshold (volume in EOS)
+                continue
+            param = '{"code":"'+c['contract']+'","account":"'+self.name+'","symbol":"' + c['currency'] + '"}'
+            data = requests.post(balanceurl, data=param).json()
+            if len(data) == 1:
+                data = data[0][:data[0].find(' ')] # convert from e.g. '10.45 IQ' to '10.45'
+                bal[c['currency']] = float(data)
+                native[c['currency']] = bal[c['currency']] * c['last']
+        return bal, native
 
 def load_eosbtc():
     # Get EOS/BTC price from Kraken
