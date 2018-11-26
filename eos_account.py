@@ -75,7 +75,7 @@ class eos_account(account):
             bal['NET'] += float(data['refund_request']['net_amount'][:-4])
         # Get available RAM in bytes
         bal['RAM'] = float(data['ram_quota'])-float(data['ram_usage'])
-        bal.update(self.u['tokens'].data[0]) # add tokens
+        bal.update(self.u['tokens'].data[0]) # add token balances
         return bal
 
     def load_tokenbalance(self):
