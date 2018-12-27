@@ -18,7 +18,7 @@ class eos_account(account):
 
     @property
     def balance(self): # overwrite super().balance, see balance_ext(self)
-        bal = self.balance_extended_native()
+        bal = self.balance_extended_native
         return {'EOS':sum([bal[c] for c in bal])}
 
     def balance_curr(self, curr):
@@ -33,12 +33,14 @@ class eos_account(account):
         return {'EOS':self.balance_native['EOS'] * basepr}
 
 
+    @property
     def balance_extended(self): # extended balance, separate NET/CPU/RAM/LIQUID/tokens
         return super().balance
 
+    @property
     def balance_extended_native(self):
         v = {}
-        bal = self.balance_extended()
+        bal = self.balance_extended
         for c in ['EOS','CPU','NET','DEL']:
             if c in bal:
                 v[c] = bal[c]

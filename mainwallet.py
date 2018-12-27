@@ -7,7 +7,7 @@ from eth_address import eth_address
 from bittrex_account import bittrex_account
 
 from os import chdir
-chdir('/media/Data/Github/crypto-api')
+chdir('/media/Data/Projects/crypto-api')
 
 ledgeracc = btc_xpub(file='keys/xpub', meta={'name':'ledger'})
 bitmexacc = bitmex_account(file='keys/bitmex', meta={'name':'bitmex'})

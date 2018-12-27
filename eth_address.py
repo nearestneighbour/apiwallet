@@ -18,7 +18,7 @@ class eth_address(account):
 
     @property
     def balance(self): # overwrite super().balance, see balance_ext(self)
-        bal = self.balance_extended_native()
+        bal = self.balance_extended_native
         return {'ETH': sum([bal[c] for c in bal])}
 
     def balance_curr(self, curr):
@@ -29,11 +29,13 @@ class eth_address(account):
         raise NotImplementedError('Currency '+curr+' not implemented in ETHACC')
 
 
+    @property
     def balance_extended(self): # extended balance, separate ERC20 tokens
         return super().balance
 
+    @property
     def balance_extended_native(self):
-        v = {'ETH': self.balance_extended()['ETH']}
+        v = {'ETH': self.balance_extended['ETH']}
         v.update(self.u['tokens'].data[1]) # add tokens
         return v
 
