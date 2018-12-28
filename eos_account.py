@@ -1,19 +1,19 @@
-from account import account
-from updatable import updatable
+from account import Account
+from updatable import Updatable
 import requests
 from time import time
 
 # To do: add token data
 
-class eos_account(account):
+class eos_account(Account):
     def __init__(self, accname, meta={}):
         # accname: name of EOS account
         self.name = accname
         super().__init__(meta)
-        self.u['tokens'] = updatable(self.load_tokenbalance) # data[0]: balances, data[1] balances in EOS
-        self.u['rampr'] = updatable(load_ramprice)
-        self.u['eosbtc'] = updatable(load_eosbtc)
-        self.u['eoseth'] = updatable(load_eoseth)
+        self.u['tokens'] = Updatable(self.load_tokenbalance) # data[0]: balances, data[1] balances in EOS
+        self.u['rampr'] = Updatable(load_ramprice)
+        self.u['eosbtc'] = Updatable(load_eosbtc)
+        self.u['eoseth'] = Updatable(load_eoseth)
 
 
     @property

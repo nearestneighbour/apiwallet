@@ -1,23 +1,19 @@
-from account import account
-from updatable import updatable
+from account import Account
+from updatable import Updatable
 import requests
 
-apikey = '3ZW92AJRI8TDPPC47BCS81K7WXBG84ZE3T' # how to solve? (e.g. upload to Github)
-# store in file like pubkey?
-
-class eth_address(account):
+class eth_address(Account):
     def __init__(self, pubkey=None, file=None, meta={}):
         if pubkey == None:
             with open(file) as f:
                 pubkey = f.readlines()[0].strip()
         self.pubkey = pubkey
         super().__init__(meta)
-        self.u['tokens'] = updatable(self.load_tokenbalance) # data[0]: balances, data[1] balances in ETH
-        self.u['ethbtc'] = updatable(get_ethbtc)
+        self.u['ethbtc'] = Updatable(get_ethbtc)
 
 
     @property
-    def balance(self): # overwrite super().balance, see balance_ext(self)
+    def balance(self): # overwrite super().balance, see balance_extended()
         bal = self.balance_extended_native
         return {'ETH': sum([bal[c] for c in bal])}
 
@@ -31,34 +27,28 @@ class eth_address(account):
 
     @property
     def balance_extended(self): # extended balance, separate ERC20 tokens
-        return super().balance
+        return super().balance[1]
 
     @property
     def balance_extended_native(self):
-        v = {'ETH': self.balance_extended['ETH']}
-        v.update(self.u['tokens'].data[1]) # add tokens
-        return v
+        return super().balance[0]
 
     def load_balance(self):
-        url = 'https://api.etherscan.io/api?module=account&action=balance&address=' + self.pubkey + '&apikey=' + apikey
-        bal = {'ETH':float(requests.get(url,timeout=15).json()['result'])/(10**18)}
-        bal.update(self.u['tokens'].data[0]) # add token balances
-        return bal
-
-    def load_tokenbalance(self):
         url = 'http://api.ethplorer.io/getAddressInfo/' + self.pubkey + '?apiKey=freekey'
-        data = requests.get(url).json()['tokens']
+        data = requests.get(url,timeout=15).json()
+        bal = {'ETH':data['ETH']['balance']} # ETH balance
         ethusd = get_ethusd()
-        bal = {}
-        native = {}
-        for t in data:
+        tokenbal = bal # token balances (including ETH)
+        tokeneth = {} # token balances denominated in ETH
+        for t in data['tokens']:
             ti = t['tokenInfo']
-            if t['tokenInfo']['price'] == False:
+            if ti['price'] == False:
                 continue
-            bal[ti['symbol']] = t['balance'] / (10**float(ti['decimals']))
-            usdbal = bal[ti['symbol']] * float(ti['price']['rate'])
-            native[ti['symbol']] = usdbal / ethusd
-        return bal, native
+            tokenbal[ti['symbol']] = t['balance'] / (10**float(ti['decimals']))
+            tokenusd = tokenbal[ti['symbol']] * float(ti['price']['rate'])
+            tokeneth[ti['symbol']] = tokenbal[ti['symbol']] / ethusd
+        bal.update(tokeneth)
+        return bal, tokenbal
 
 def get_ethbtc():
     url = 'https://api.kraken.com/0/public/Ticker?pair=ethxbt'

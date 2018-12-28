@@ -1,4 +1,4 @@
-from wallet import wallet
+from wallet import Wallet
 from btc_xpub import btc_xpub
 from bitmex_account import bitmex_account
 from kraken_account import kraken_account
@@ -17,7 +17,7 @@ eos_oldacc = eos_account(accname='gqytaojvgmge', meta={'name':'eos_old'})
 ethacc = eth_address(file='keys/ethpub', meta={'name':'eth'})
 bittrexacc = bittrex_account(file='keys/bittrex', meta={'name':'bittrex'})
 
-w = wallet(ledgeracc, bitmexacc, ethacc, krakenacc, eosacc, bittrexacc, eos_oldacc)
+w = Wallet(ledgeracc, bitmexacc, ethacc, krakenacc, eosacc, bittrexacc, eos_oldacc)
 print('Total BTC: ', w.total_btc)
 print('Total EUR: ', w.total_eur)
 print('Balance:')

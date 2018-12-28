@@ -1,7 +1,7 @@
 from time import time
 
 
-class updatable:
+class Updatable:
     def __init__(self, updatefunc, interval=300, update=False):
         self.updatefunc = updatefunc
         if update:

@@ -1,7 +1,7 @@
-from account import account
+from account import Account
 import requests
 
-class btc_address(account):
+class btc_address(Account):
     def __init__(self, pubkey=None, file=None, meta={}):
         if pubkey == None:
             with open(file) as f:

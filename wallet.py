@@ -2,7 +2,7 @@ from tabulate import tabulate
 import requests
 import json
 import pickle
-from updatable import updatable
+from updatable import Updatable
 # IDEAS
 # add eth_xpub account type
 # add open order functionality
@@ -10,7 +10,7 @@ from updatable import updatable
 #
 # cryptopyfolio
 
-class wallet:
+class Wallet:
     def __init__(self, *args):
         # Create new wallet object and add accounts
         # *args: account objects as specified by Account Standard
@@ -20,8 +20,8 @@ class wallet:
             self.add_account(acc)
         self.u = {
             # See end of file for function declarations
-            'btceur': updatable(load_btceur, 60),
-            'btcusd': updatable(load_btcusd, 60)
+            'btceur': Updatable(load_btceur, 60),
+            'btcusd': Updatable(load_btcusd, 60)
         }
 
     def add_account(self, account):

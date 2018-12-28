@@ -1,4 +1,4 @@
-from account import account
+from account import Account
 import requests
 from btcpy.setup import setup
 from btcpy.structs.hd import ExtendedPublicKey
@@ -10,7 +10,7 @@ setup('mainnet')
 # Separate addresses into different balances (name each, e.g. 'change0, spend1')
 # Alternatives for address='nested'
 
-class btc_xpub(account):
+class btc_xpub(Account):
     def __init__(self, xpub=None, file=None, meta={}):
         if xpub == None:
             with open(file) as f:

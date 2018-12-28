@@ -8,12 +8,12 @@
 # - Smart contract accounts (EOSAccount): tokens
 # - Exchange accounts (Kraken, Bittrex): multiple currencies, what base?
 
-from updatable import updatable
+from updatable import Updatable
 
-class account:
+class Account:
     def __init__(self, meta={}):
         self.meta = meta
-        self.u = {'balance': updatable(self.load_balance)}
+        self.u = {'balance': Updatable(self.load_balance)}
         # does this call account.load_balances or (child class).load_balances?
 
 # BALANCE RELATED

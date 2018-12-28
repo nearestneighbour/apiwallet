@@ -1,5 +1,5 @@
-from account import account
-from updatable import updatable
+from account import Account
+from updatable import Updatable
 import lib.krakenapi as ka
 
 # TO DO; choose self-base currency (EUR, USD, BTC, maybe ETH)
@@ -7,7 +7,7 @@ import lib.krakenapi as ka
 # Kraken gives weird names to currencies
 currencies = {'XXBT':'BTC','XETH':'ETH','ZEUR':'EUR','ZUSD':'USD','XLTC':'LTC','XXLM':'XLM'}
 
-class kraken_account(account):
+class kraken_account(Account):
     def __init__(self, api_key=None, api_secret=None, file=None, meta={}):
         if api_key == None:
             with open(file) as f:
@@ -18,7 +18,7 @@ class kraken_account(account):
             self.key = api_key
             self.secret = api_secret
         super().__init__(meta)
-        self.u['price'] = updatable(self.load_prices)
+        self.u['price'] = Updatable(self.load_prices)
 
 
     @property

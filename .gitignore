@@ -1,5 +1,5 @@
-/keys
-/mywallet
-/__pycache__
-/lib/__pycache__
+keys
+__pycache__
+lib/__pycache__
 .ipynb_checkpoints
+mainwallet.py

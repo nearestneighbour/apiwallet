@@ -1,9 +1,9 @@
-from account import account
+from account import Account
 from lib import bitmex
 
 # To do: separate (un)realized profit, available margin etc
 
-class bitmex_account(account):
+class bitmex_account(Account):
     def __init__(self, api_key=None, api_secret=None, file=None, testnet=False, meta={}):
         if api_key == None:
             with open(file) as f:

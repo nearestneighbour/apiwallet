@@ -1,8 +1,8 @@
-from account import account
-from updatable import updatable
+from account import Account
+from updatable import Updatable
 from lib.bittrex import Bittrex
 
-class bittrex_account(account):
+class bittrex_account(Account):
     def __init__(self, api_key=None, api_secret=None, file=None, meta={}):
         if api_key == None:
             with open(file) as f:
@@ -11,7 +11,7 @@ class bittrex_account(account):
                 api_secret = text[1].strip()
         self.api = Bittrex(api_key, api_secret)
         super().__init__(meta)
-        self.u['price'] = updatable(self.load_btcpr)
+        self.u['price'] = Updatable(self.load_btcpr)
 
 
     @property
