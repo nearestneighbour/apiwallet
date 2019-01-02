@@ -16,3 +16,4 @@ Finally, each of the class mentioned above makes use of the Updatable class. The
 * Bitmex, Bittrex, Kraken accounts: remove unnecessary code
 * Add short project description before Documentation section
 * Finish Jupyter notebook example
+* Check licensing and attribution (MIT license, do I need attribution for Bitmex/Bittrex/Kraken code?)
