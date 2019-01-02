@@ -1,8 +1,9 @@
-from .account import Account
 import requests
 from btcpy.setup import setup
 from btcpy.structs.hd import ExtendedPublicKey
 from btcpy.structs.address import P2shAddress, P2wpkhAddress
+
+from account import Account
 
 setup('mainnet')
 

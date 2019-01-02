@@ -1,6 +1,7 @@
-from updatable import Updatable
-from .account import Account
 from .lib import bittrex
+
+from account import Account
+from updatable import Updatable
 
 class bittrex_account(Account):
     def __init__(self, api_key=None, api_secret=None, file=None, meta={}):

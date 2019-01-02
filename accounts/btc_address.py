@@ -1,5 +1,6 @@
-from account import Account
 import requests
+
+from account import Account
 
 class btc_address(Account):
     def __init__(self, pubkey=None, file=None, meta={}):

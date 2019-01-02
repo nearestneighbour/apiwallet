@@ -1,7 +1,8 @@
-from .account import Account
-from updatable import Updatable
 import requests
 from time import time
+
+from account import Account
+from updatable import Updatable
 
 # To do: add token data
 
