@@ -1,5 +1,6 @@
-from time import time
+# This class does ...
 
+from time import time
 
 class Updatable:
     def __init__(self, updatefunc, interval=300, update=False):

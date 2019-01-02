@@ -1,12 +1,5 @@
-# Account Standard
-# All account classes should comply to this standard in order to work with a
-# Cryptopyfolio wallet object as specified in wallet.py. Account classes should
-# be a child of the account class specified below.
-
-# 3 types of accounts:
-# - Single currency accounts (Bitmex*, BTCAddress, BTCXPUB, ETHAdress*)
-# - Smart contract accounts (EOSAccount): tokens
-# - Exchange accounts (Kraken, Bittrex): multiple currencies, what base?
+# This is a template class. All derived Account classes should follow this
+# template in order to work with a Wallet instance as specified in wallet.py.
 
 from updatable import Updatable
 

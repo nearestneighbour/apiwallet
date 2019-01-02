@@ -1,3 +1,5 @@
+# This class does ...
+
 from tabulate import tabulate
 import requests
 import json
