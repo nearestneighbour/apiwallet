@@ -3,12 +3,6 @@ import requests
 import json
 import pickle
 from updatable import Updatable
-# IDEAS
-# add eth_xpub account type
-# add open order functionality
-# add wallet.balance to show other currencies in addition to BTC
-#
-# cryptopyfolio
 
 class Wallet:
     def __init__(self, *args):
