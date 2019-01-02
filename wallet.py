@@ -4,6 +4,7 @@ from tabulate import tabulate
 import requests
 import json
 import pickle
+
 from updatable import Updatable
 
 class Wallet:
