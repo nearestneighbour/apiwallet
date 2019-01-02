@@ -19,7 +19,7 @@ class Wallet:
         }
 
     def add_account(self, account):
-        # Add account to wallet. If no add.data['name'] is specified, acc.data['name']
+        # Add account to wallet. If no account.data['name'] is specified, account.data['name']
         # is set to a unique number. Accounts are then sorted by name.
         namedacc = [acc for acc in self.accounts if not acc.meta['name'].isdigit()]
         idacc = [acc for acc in self.accounts if acc.meta['name'].isdigit()]
