@@ -2,5 +2,5 @@ keys
 __pycache__
 accounts/__pycache__
 accounts/lib/__pycache__
-.ipynb_checkpoints
+demo/.ipynb_checkpoints
 mainwallet.py
