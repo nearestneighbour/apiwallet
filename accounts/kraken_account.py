@@ -1,5 +1,4 @@
-from .lib import krakenapi as ka
-
+from .lib import kraken
 from account import Account
 from updatable import Updatable
 
@@ -48,7 +47,7 @@ class kraken_account(Account):
 
     def load_balance(self):
         bal = {}
-        data = ka.api_query_private('Balance',{},self.key,self.secret)['result']
+        data = kraken.api_query_private('Balance',{},self.key,self.secret)['result']
         for curr in data:
             if float(data[curr]) < 0.00002:
                 continue
@@ -66,7 +65,7 @@ class kraken_account(Account):
                 continue
             else:
                 pairs += curr + 'XBT,'
-        data = ka.api_query_public('Ticker',{'pair':pairs[:-1]})['result']
+        data = kraken.api_query_public('Ticker',{'pair':pairs[:-1]})['result']
         for p in data:
             if len(p) == 6: # 'normal' trade pair
                 pr[p[:3]] = float(data[p]['c'][0])

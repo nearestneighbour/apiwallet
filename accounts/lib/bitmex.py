@@ -1,4 +1,9 @@
-"""BitMEX API Connector."""
+"""
+BitMEX API Connector.
+Copyright 2018 github@BitMEX
+Code adapted from: github.com/BitMEX/easy-data-scripts
+"""
+
 import requests
 from time import sleep
 import json
@@ -7,8 +12,6 @@ import uuid
 from .accessTokenAuth import AccessTokenAuth
 from .apiKeyAuthWithExpires import APIKeyAuthWithExpires
 
-
-# https://www.bitmex.com/api/explorer/
 class BitMEX(object):
 
     """BitMEX API Connector."""

@@ -1,3 +1,8 @@
+"""
+Copyright 2018 github@ericsomdahl
+Code taken from: github.com/ericsomdahl/python-bittrex
+"""
+
 import time
 import hmac
 import hashlib

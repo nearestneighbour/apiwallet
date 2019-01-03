@@ -1,5 +1,4 @@
 from .lib import bittrex
-
 from account import Account
 from updatable import Updatable
 

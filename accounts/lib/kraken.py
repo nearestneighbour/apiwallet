@@ -1,3 +1,8 @@
+"""
+Copyright 2018 github@t0mk
+Code adapted from: github.com/t0mk/kraken-python3-cli
+"""
+
 import time
 import urllib
 import hmac
