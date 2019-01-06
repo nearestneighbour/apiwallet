@@ -7,11 +7,11 @@ class Account:
     def __init__(self, meta={}):
         self.meta = meta
         self.balancedata = Updatable(self.load_balance)
-        # does this call account.load_balances or (child class).load_balances?
+        # self.to_btc = slkfslkfja;
 
 # BALANCE RELATED
     @property
-    def balance(self):
+    def balance(self): # to do: change balancedata to balance, remove this func
         # Return dict of balances for account (see account specification)
         return self.balancedata()
 

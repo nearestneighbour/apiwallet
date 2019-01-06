@@ -30,6 +30,7 @@ class kraken_account(Account):
             v[c] = bal[c] * pr[c]
         return v
 
+    """ DEPRECATED
     def balance_curr(self, curr):
         if curr == 'BTC':
             return self.balance_native
@@ -43,6 +44,7 @@ class kraken_account(Account):
         for c in bal:
             bal[c] = bal[c] * basepr
         return bal
+    """
 
 
     def load_balance(self):

@@ -23,6 +23,7 @@ class eos_account(Account):
         bal = self.balance_extended_native
         return {'EOS':sum([bal[c] for c in bal])}
 
+    """ DEPRECATED
     def balance_curr(self, curr):
         if curr == 'EOS':
             return self.balance_native['EOS']
@@ -33,6 +34,7 @@ class eos_account(Account):
         else:
             raise NotImplementedError('Currency '+curr+' not implemented in EOSACC')
         return {'EOS':self.balance_native['EOS'] * basepr}
+    """
 
 
     @property

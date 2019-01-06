@@ -23,10 +23,12 @@ class bittrex_account(Account):
             v[curr] = bal[curr] * btcpr[curr]
         return v
 
+    """ DEPRECATED
     def balance_curr(self, curr):
         if curr == 'BTC':
             return self.balance_native
         raise NotImplementedError('Currency '+curr+' not implemented in BITTREX')
+    """
 
 
     def load_balance(self):

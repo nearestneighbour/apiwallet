@@ -18,12 +18,14 @@ class eth_address(Account):
         bal = self.balance_extended_native
         return {'ETH': sum([bal[c] for c in bal])}
 
+    """ DEPRECATED
     def balance_curr(self, curr):
         if curr == 'ETH':
             return self.balance_native['ETH']
         elif curr == 'BTC':
             return {'ETH': self.balance_native['ETH'] * self.ethbtc()}
         raise NotImplementedError('Currency '+curr+' not implemented in ETHACC')
+    """
 
 
     @property
