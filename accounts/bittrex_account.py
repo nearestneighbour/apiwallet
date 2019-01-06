@@ -11,14 +11,14 @@ class bittrex_account(Account):
                 api_secret = text[1].strip()
         self.api = bittrex.Bittrex(api_key, api_secret)
         super().__init__(meta)
-        self.u['price'] = Updatable(self.load_btcpr)
+        self.price = Updatable(self.load_btcpr)
 
 
     @property
     def balance_native(self):
         v = {}
         bal = self.balance
-        btcpr = self.u['price'].data
+        btcpr = self.price()
         for curr in bal:
             v[curr] = bal[curr] * btcpr[curr]
         return v

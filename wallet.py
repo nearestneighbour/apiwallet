@@ -7,6 +7,9 @@ import pickle
 
 from updatable import Updatable
 
+# to do:
+# add function to convert wallet/account total/balance to any currency
+
 class Wallet:
     def __init__(self, *args):
         # Create new wallet object and add accounts
@@ -74,7 +77,7 @@ class Wallet:
         return balance
 
     @property
-    def balance_btc(self): # seems redundant, see balance(self)
+    def balance_btc(self): # seems overly complex, see balance(self) (use balance=self.balance?)
         balance = {}
         for acc in self.accounts:
             bal = acc.balance_curr('BTC')

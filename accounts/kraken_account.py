@@ -18,14 +18,14 @@ class kraken_account(Account):
             self.key = api_key
             self.secret = api_secret
         super().__init__(meta)
-        self.u['price'] = Updatable(self.load_prices)
+        self.price = Updatable(self.load_prices)
 
 
     @property
     def balance_native(self): # base curr: BTC
         v = {}
         bal = self.balance
-        pr = self.u['price'].data
+        pr = self.price()
         for c in bal:
             v[c] = bal[c] * pr[c]
         return v
@@ -34,9 +34,9 @@ class kraken_account(Account):
         if curr == 'BTC':
             return self.balance_native
         elif curr == 'EUR':
-            basepr = 1 / self.u['price'].data['EUR']
+            basepr = 1 / self.price()['EUR']
         elif curr == 'USD':
-            basepr = 1 / self.u['price'].data['USD']
+            basepr = 1 / self.price()['USD']
         else:
             raise NotImplementedError('Currency '+curr+' not implemented in KRAKEN')
         bal = self.balance_native

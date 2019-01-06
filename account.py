@@ -33,7 +33,7 @@ class Account:
         raise NotImplementedError('method value_base not implemented in child class')
 
 # BALANCE DETAILS
-    def currency(self, curr): # rename to currency_total
+    def currency(self, curr): # to do: rename to currency_total
         # Return total balance of a particular currency (e.g. EOS+CPU+NET)
         # Default behaviour:
         b = self.balance

@@ -10,15 +10,16 @@ class eos_account(Account):
     def __init__(self, accname, meta={}):
         # accname: name of EOS account
         self.name = accname
+        self.native = 'EOS' # base currency
         super().__init__(meta)
-        self.u['tokens'] = Updatable(self.load_tokenbalance) # data[0]: balances, data[1] balances in EOS
-        self.u['rampr'] = Updatable(load_ramprice)
-        self.u['eosbtc'] = Updatable(load_eosbtc)
-        self.u['eoseth'] = Updatable(load_eoseth)
+        self.tokens = Updatable(self.load_tokenbalance) # data[0]: balances, data[1] balances in EOS
+        self.ramprice = Updatable(load_ramprice)
+        self.eosbtc = Updatable(load_eosbtc)
+        self.eoseth = Updatable(load_eoseth)
 
 
     @property
-    def balance(self): # overwrite super().balance, see balance_ext(self)
+    def balance(self):
         bal = self.balance_extended_native
         return {'EOS':sum([bal[c] for c in bal])}
 
@@ -26,9 +27,9 @@ class eos_account(Account):
         if curr == 'EOS':
             return self.balance_native['EOS']
         elif curr == 'BTC':
-            basepr = self.u['eosbtc'].data
+            basepr = self.eosbtc()
         elif curr == 'ETH':
-            basepr = self.u['eoseth'].data
+            basepr = self.eoseth()
         else:
             raise NotImplementedError('Currency '+curr+' not implemented in EOSACC')
         return {'EOS':self.balance_native['EOS'] * basepr}
@@ -45,8 +46,8 @@ class eos_account(Account):
         for c in ['EOS','CPU','NET','DEL']:
             if c in bal:
                 v[c] = bal[c]
-        v['RAM'] = bal['RAM'] * self.u['rampr'].data
-        v.update(self.u['tokens'].data[1]) # add tokens
+        v['RAM'] = bal['RAM'] * self.ramprice()
+        v.update(self.tokens()[1]) # add tokens
         return v
 
 
@@ -78,7 +79,7 @@ class eos_account(Account):
             bal['NET'] += float(data['refund_request']['net_amount'][:-4])
         # Get available RAM in bytes
         bal['RAM'] = float(data['ram_quota'])-float(data['ram_usage'])
-        bal.update(self.u['tokens'].data[0]) # add token balances
+        bal.update(self.tokens()[0]) # add token balances
         return bal
 
     def load_tokenbalance(self):

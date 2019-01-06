@@ -19,9 +19,8 @@ class Updatable:
             self.interval = interval
         self.updatetime = time()
 
-    @property
-    def data(self):
-        # Get data
+    def __call__(self):
+        # Return data
         if self.outdated:
             self.update()
         return self.mydata
