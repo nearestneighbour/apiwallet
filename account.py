@@ -6,14 +6,14 @@ from updatable import Updatable
 class Account:
     def __init__(self, meta={}):
         self.meta = meta
-        self.u = {'balance': Updatable(self.load_balance)}
+        self.balancedata = Updatable(self.load_balance)
         # does this call account.load_balances or (child class).load_balances?
 
 # BALANCE RELATED
     @property
     def balance(self):
         # Return dict of balances for account (see account specification)
-        return self.u['balance'].data
+        return self.balancedata()
 
     @property
     def balance_native(self):

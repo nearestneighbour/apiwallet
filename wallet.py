@@ -18,11 +18,8 @@ class Wallet:
         self.accounts = []
         for acc in args:
             self.add_account(acc)
-        self.u = {
-            # See end of file for function declarations
-            'btceur': Updatable(load_btceur, 60),
-            'btcusd': Updatable(load_btcusd, 60)
-        }
+        self.btceur = Updatable(load_btceur, 60)
+        self.btcusd = Updatable(load_btcusd, 60)
 
     def add_account(self, account):
         # Add account to wallet. If no account.data['name'] is specified, account.data['name']
@@ -56,12 +53,12 @@ class Wallet:
     @property
     def total_eur(self):
         # Get total EUR worth of accounts in wallet
-        return self.total_btc * self.u['btceur'].data
+        return self.total_btc * self.btceur()
 
     @property
     def total_usd(self):
         # Get total USD worth of accounts in wallet
-        return self.total_btc * self.u['btcusd'].data
+        return self.total_btc * self.btcusd()
 
 
     @property
