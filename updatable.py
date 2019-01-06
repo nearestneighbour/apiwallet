@@ -21,11 +21,10 @@ class Updatable:
 
     def __call__(self):
         # Return data
-        if self.outdated:
+        if self.outdated():
             self.update()
         return self.mydata
 
-    @property
     def outdated(self):
         if self.mydata == None:
             return True
