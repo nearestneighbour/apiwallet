@@ -16,7 +16,7 @@ class bitmex_account(Account):
             url = 'https://bitmex.com/api/v1/'
         self.api = bitmex.BitMEX(base_url=url, apiKey=api_key, apiSecret=api_secret)
         super().__init__(meta)
-
+        self.native = 'BTC'
 
     def load_balance(self):
         data = self.api._curl_bitmex(path='user/margin', verb='GET', timeout=10)

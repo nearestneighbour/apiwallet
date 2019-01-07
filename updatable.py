@@ -19,11 +19,14 @@ class Updatable:
             self.interval = interval
         self.updatetime = time()
 
-    def __call__(self):
+    def __call__(self, arg = None):
         # Return data
         if self.outdated():
             self.update()
-        return self.mydata
+        if arg == None:
+            return self.mydata
+        else:
+            return self.mydata[arg]
 
     def outdated(self):
         if self.mydata == None:

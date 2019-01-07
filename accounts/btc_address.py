@@ -9,7 +9,7 @@ class btc_address(Account):
                 pubkey = f.readlines()[0].strip()
         self.pubkey = pubkey
         super().__init__(meta)
-
+        self.native = 'BTC'
 
     def load_balance(self):
         url = 'https://blockchain.info/q/addressbalance/' + self.pubkey

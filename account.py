@@ -6,43 +6,46 @@ from updatable import Updatable
 class Account:
     def __init__(self, meta={}):
         self.meta = meta
-        self.balancedata = Updatable(self.load_balance)
-        # self.to_btc = slkfslkfja;
+        self.native = None
+        self.balance = Updatable(self.load_balance)
+        self.prices = Updatable(self.load_prices)
+        self.btcprice = Updatable(self.load_btcprice)
 
-# BALANCE RELATED
-    @property
-    def balance(self): # to do: change balancedata to balance, remove this func
-        # Return dict of balances for account (see account specification)
-        return self.balancedata()
+    def total_native(self): # right name? total worth of account in native currency
+        b = self.balance()
+        pr = self.prices()
+        return sum([b[i]*pr[i] for i in b])
 
-    @property
-    def balance_native(self):
-        # Return balances converted to account primary currency
-        # Default behaviour:
-        b = self.balance
-        if len(b) == 1:
-            return b
-        raise NotImplementedError('method value_self not implemented in child class')
+    def balance_native(self, curr=None):
+        b = self.balance(curr)
+        pr = self.prices(curr)
+        bn = {}
+        for c in b: # for every currency in balance
+            bn[c] = b[c] * pr[c]
+        return bn
 
-    def balance_curr(self, curr):
-        # Return balances converted to base currency
-        # Default behaviour:
-        b = self.balance
-        if len(b) == 1 and curr in b:
-            return b
-        raise NotImplementedError('method value_base not implemented in child class')
+    def balance_btc(self, curr=None):
+        bn = self.balance_native(curr)
+        pr = self.btcprice()
+        bb = {}
+        for c in bn: # for every currency in balance
+            bb[c] = bn[c] * pr
+        return bb
 
-# BALANCE DETAILS
-    def currency(self, curr): # to do: rename to currency_total
-        # Return total balance of a particular currency (e.g. EOS+CPU+NET)
-        # Default behaviour:
-        b = self.balance
-        if curr in b:
-            return b[curr]
-        else:
-            return 0
-
-# LOAD_BALANCE
     def load_balance(self):
         # Load balance data from API and update balances
         raise NotImplementedError('method load_balance not implemented in child class')
+
+    def load_prices(self):
+        if self.native == None:
+            raise NotImplementedError('`native` attribute not implemented in child class')
+        if len(self.balance()) == 1 and self.native in self.balance():
+            return {self.native: 1.0}
+        else:
+            raise NotImplementedError('method load_prices not implemented in child class')
+
+    def load_btcprice(self):
+        if self.native == 'BTC':
+            return 1.0
+        else:
+            raise NotImplementedError('method load_btcprice not implemented in child class')

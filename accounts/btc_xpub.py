@@ -18,7 +18,7 @@ class btc_xpub(Account):
                 xpub = f.readlines()[0].strip()
         self.xpub = ExtendedPublicKey.decode(xpub)
         super().__init__(meta)
-
+        self.native = 'BTC'
 
     def load_balance(self):
         bal = 0

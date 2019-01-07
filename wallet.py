@@ -7,9 +7,6 @@ import pickle
 
 from updatable import Updatable
 
-# to do:
-# add function to convert wallet/account total/balance to any currency
-
 class Wallet:
     def __init__(self, *args):
         # Create new wallet object and add accounts
@@ -18,8 +15,7 @@ class Wallet:
         self.accounts = []
         for acc in args:
             self.add_account(acc)
-        self.btceur = Updatable(load_btceur, 60)
-        self.btcusd = Updatable(load_btcusd, 60)
+        self.pr = {'EUR':Updatable(load_btceur, 60),'USD':Updatable(load_btcusd, 60)}
 
     def add_account(self, account):
         # Add account to wallet. If no account.data['name'] is specified, account.data['name']
@@ -37,35 +33,20 @@ class Wallet:
             self.accounts += idacc
 
 
-    @property
     def total_btc(self):
-        # Get total BTC worth of accounts in wallet
-        # Accounts are updated if outdated
         btc = 0
         for acc in self.accounts:
-            try:
-                a = acc.balance_curr('BTC')
-            except NotImplementedError:
-                raise NotImplementedError('Base BTC not implemented for acc '+acc.meta['name'])
-            btc += sum([a[i] for i in a])
+            btc += acc.total_native() * acc.btcprice()
         return btc
 
-    @property
-    def total_eur(self):
-        # Get total EUR worth of accounts in wallet
-        return self.total_btc * self.btceur()
+    def total_curr(self, curr=None):
+        # Get total worth of accounts in curr, e.g. 'USD' or 'EUR'
+        return self.total_btc() * self.pr[curr]()
 
-    @property
-    def total_usd(self):
-        # Get total USD worth of accounts in wallet
-        return self.total_btc * self.btcusd()
-
-
-    @property
-    def balance(self):
+    def balance(self, curr=None):
         balance = {}
         for acc in self.accounts:
-            bal = acc.balance
+            bal = acc.balance(curr)
             for b in bal:
                 if b not in balance:
                     balance[b] = bal[b]
@@ -73,25 +54,16 @@ class Wallet:
                     balance[b] += bal[b]
         return balance
 
-    @property
-    def balance_btc(self): # seems overly complex, see balance(self) (use balance=self.balance?)
+    def balance_btc(self, curr=None):
         balance = {}
         for acc in self.accounts:
-            bal = acc.balance_curr('BTC')
+            bal = acc.balance_btc(curr)
             for b in bal:
                 if b not in balance:
                     balance[b] = bal[b]
                 else:
                     balance[b] += bal[b]
         return balance
-
-
-    def currency(self, curr):
-        tot = 0
-        for acc in self.accounts:
-            tot += acc.currency(curr)
-        return tot
-
 
     def save(self, fname):
         # Save wallet object to file using pickle module
