@@ -10,7 +10,7 @@ The Wallet class aggregates the data retrieved from Account instances and define
 Finally, each of the class mentioned above makes use of the Updatable class. The Updatable class makes sure that data loaded from an API stays up to date without having to redownload the data every time it is needed.
 
 ## Example usage
-(Jupyter notebook)
+(see Jupyter notebook)
 
 ## To do
 * Bitmex, Bittrex, Kraken accounts: remove unnecessary code
