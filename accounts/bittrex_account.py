@@ -18,8 +18,9 @@ class bittrex_account(Account):
         bal = {}
         data = self.api.get_balances()['result']
         for curr in data:
-            if curr['Balance'] > 0.00002:
-                bal[curr['Currency']] = curr['Balance']
+            if curr['Balance'] != None:
+                if curr['Balance'] > 0.00002:
+                    bal[curr['Currency']] = curr['Balance']
         return bal
 
     def load_prices(self):
