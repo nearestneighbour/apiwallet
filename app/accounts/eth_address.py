@@ -1,7 +1,6 @@
 import requests
 
-from account import Account
-from updatable import Updatable
+from app import Account, Updatable
 
 class eth_address(Account):
     def __init__(self, pubkey=None, file=None, meta={}):

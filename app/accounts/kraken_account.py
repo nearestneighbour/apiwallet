@@ -1,6 +1,5 @@
 from .lib import kraken
-from account import Account
-from updatable import Updatable
+from app import Account, Updatable
 
 # TO DO; choose self-base currency (EUR, USD, BTC, maybe ETH)
 

@@ -4,7 +4,7 @@ import requests
 import json
 #import pickle --- see save/load functions
 
-from updatable import Updatable
+from .updatable import Updatable
 
 class Wallet:
     def __init__(self, *args):

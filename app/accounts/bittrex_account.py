@@ -1,6 +1,5 @@
 from .lib import bittrex
-from account import Account
-from updatable import Updatable
+from app import Account, Updatable
 
 class bittrex_account(Account):
     def __init__(self, api_key=None, api_secret=None, file=None, meta={}):
