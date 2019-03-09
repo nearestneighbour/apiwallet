@@ -2,7 +2,6 @@
 
 import requests
 import json
-#import pickle --- see save/load functions
 
 from .updatable import Updatable
 

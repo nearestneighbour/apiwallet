@@ -1,7 +1,7 @@
 import requests
 from time import time
 
-from app import Account, Updatable
+from .. import Account, Updatable
 
 # To do: add token data
 
@@ -63,7 +63,7 @@ class eos_account(Account):
         # Load RAM price
         ramurl = 'http://mainnet.eoscanada.com/v1/chain/get_table_rows'
         param = '{"scope":"eosio","code":"eosio","table":"rammarket","json":true}'
-        ramdata = requests.post(ramurl,data=param).json()['rows'][0]
+        ramdata = requests.post(ramurl, data=param).json()['rows'][0]
         price['RAM'] = float(ramdata['quote']['balance'][:-4]) / float(ramdata['base']['balance'][:-4])
         price['CPU'] = 1.0
         price['NET'] = 1.0

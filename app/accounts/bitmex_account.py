@@ -1,5 +1,5 @@
 from .lib import bitmex
-from app import Account
+from .. import Account
 
 # To do: separate (un)realized profit, available margin etc
 

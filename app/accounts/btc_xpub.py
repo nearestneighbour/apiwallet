@@ -3,7 +3,7 @@ from btcpy.setup import setup
 from btcpy.structs.hd import ExtendedPublicKey
 from btcpy.structs.address import P2shAddress, P2wpkhAddress
 
-from app import Account
+from .. import Account
 
 setup('mainnet')
 

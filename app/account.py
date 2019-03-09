@@ -1,7 +1,7 @@
 # This is a template class. All derived Account classes should follow this
 # template in order to work with a Wallet instance as specified in wallet.py.
 
-from app import Updatable
+from .updatable import Updatable
 
 class Account:
     def __init__(self, meta={}):
