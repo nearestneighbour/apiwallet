@@ -1,4 +1,9 @@
-from .lib import bittrex
+#
+# Bittrex API connector adapted from: github.com/ericsomdahl/python-bittrex
+#
+
+import requests, json, urllib, time, hashlib, hmac
+
 from .. import Account, Updatable
 
 class bittrex_account(Account):
@@ -6,16 +11,22 @@ class bittrex_account(Account):
         if api_key == None:
             with open(file) as f:
                 text = f.readlines()
-                api_key = text[0].strip()
-                api_secret = text[1].strip()
-        self.api = bittrex.Bittrex(api_key, api_secret)
+                self.key = text[0].strip()
+                self.secret = text[1].strip()
+        else:
+            self.key = api_key
+            self.secret = api_secret
         super().__init__(meta)
         self.native = 'BTC'
         self.btcprice = Updatable(self.load_btcprice)
 
     def load_balance(self):
+        url =  'https://bittrex.com/api/v1.1/account/getbalances'
+        nonce = str(int(time.time() * 1000))
+        url += '?apikey={0}&nonce={1}&'.format(self.key, nonce)
+        sig = hmac.new(self.secret.encode(), url.encode(), hashlib.sha512).hexdigest()
+        data = requests.get(url, headers={"apisign": sig}).json()['result']
         bal = {}
-        data = self.api.get_balances()['result']
         for curr in data:
             if curr['Balance'] != None:
                 if curr['Balance'] > 0.00002:
@@ -23,11 +34,14 @@ class bittrex_account(Account):
         return bal
 
     def load_prices(self):
+        url =  'https://bittrex.com/api/v1.1/public/getmarketsummaries'
+        data = requests.get(url).json()['result']
+        bal = self.balance()
         pr = {}
-        for curr in self.balance():
-            if curr == 'BTC':
-                pr[curr] = 1.0
-            else:
-                data = self.api.get_ticker('BTC-'+curr)
-                pr[curr] = float(data['result']['Last'])
+        for market in data:
+            if market['MarketName'][:4] == 'BTC-':
+                curr = market['MarketName'][4:]
+                if curr in bal:
+                    pr[curr] = market['Last']
+        pr['BTC'] = 1
         return pr

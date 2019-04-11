@@ -19,7 +19,7 @@ class eos_account(Account):
         url = 'http://mainnet.eoscanada.com/v1/chain/get_account'
         param = '{"account_name":"' + self.name + '"}'
         data = requests.post(url,data=param).json()
-        bal = {}
+        bal = {'EOS': 0, 'CPU': 0, 'NET': 0, 'DEL': 0}
         if 'core_liquid_balance' in data:
             bal['EOS'] = float(data['core_liquid_balance'][:-4]) # change 'EOS' to 'LIQ' oid?
         if data['self_delegated_bandwidth'] != None:

@@ -1,5 +1,8 @@
 # This class does ...
 
+# to do:
+# balance(curr) should return total balance of a currency
+
 import requests
 import json
 

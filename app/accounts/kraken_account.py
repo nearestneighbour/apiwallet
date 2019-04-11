@@ -1,7 +1,12 @@
-from .lib import kraken
+#
+# Kraken API request code adapted from: github.com/t0mk/kraken-python3-cli
+#
+
+import requests, json, urllib, time, hashlib, hmac, base64
+
 from .. import Account, Updatable
 
-# TO DO; choose self-base currency (EUR, USD, BTC, maybe ETH)
+# TO DO; choose native currency (EUR, USD, BTC, maybe ETH)
 
 # Kraken gives weird names to currencies
 currencies = {'XXBT':'BTC','XETH':'ETH','ZEUR':'EUR','ZUSD':'USD','XLTC':'LTC','XXLM':'XLM'}
@@ -21,8 +26,20 @@ class kraken_account(Account):
         self.prices = Updatable(self.load_prices)
 
     def load_balance(self):
+        path = '/0/private/Balance'
+        params = {'nonce': int(1000*time.time())}
+        postdata = urllib.parse.urlencode(params)
+        encoded = (str(params['nonce']) + postdata).encode()
+        msg = path.encode() + hashlib.sha256(encoded).digest()
+        sig = hmac.new(base64.b64decode(self.secret), msg, hashlib.sha512)
+        sig = base64.b64encode(sig.digest())
+        headers = {
+            'API-Key': self.key,
+            'API-Sign': sig.decode()
+        }
+        url = 'https://api.kraken.com' + path
+        data = requests.post(url, data=params, headers=headers, timeout=10).json()['result']
         bal = {}
-        data = kraken.api_query_private('Balance',{},self.key,self.secret)['result']
         for curr in data:
             if float(data[curr]) < 0.00002:
                 continue
@@ -40,7 +57,9 @@ class kraken_account(Account):
                 continue
             else:
                 pairs += curr + 'XBT,'
-        data = kraken.api_query_public('Ticker',{'pair':pairs[:-1]})['result']
+        url = 'https://api.kraken.com/0/public/Ticker'
+        params = {'pair': pairs[:-1]}
+        data = requests.get(url, params=params, timeout=10).json()['result']
         for p in data:
             if len(p) == 6: # 'normal' trade pair
                 pr[p[:3]] = float(data[p]['c'][0])
