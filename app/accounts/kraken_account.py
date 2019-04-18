@@ -1,7 +1,3 @@
-#
-# Kraken API request code adapted from: github.com/t0mk/kraken-python3-cli
-#
-
 import requests, json, urllib, time, hashlib, hmac, base64
 
 from .. import Account, Updatable
@@ -22,21 +18,18 @@ class kraken_account(Account):
             self.key = api_key
             self.secret = api_secret
         super().__init__(meta)
-        self.native = 'BTC'
+        self.native = ''
         self.prices = Updatable(self.load_prices)
 
     def load_balance(self):
         path = '/0/private/Balance'
         params = {'nonce': int(1000*time.time())}
-        postdata = urllib.parse.urlencode(params)
-        encoded = (str(params['nonce']) + postdata).encode()
-        msg = path.encode() + hashlib.sha256(encoded).digest()
+        data = urllib.parse.urlencode(params)
+        data = (str(params['nonce']) + data).encode()
+        msg = path.encode() + hashlib.sha256(data).digest()
         sig = hmac.new(base64.b64decode(self.secret), msg, hashlib.sha512)
         sig = base64.b64encode(sig.digest())
-        headers = {
-            'API-Key': self.key,
-            'API-Sign': sig.decode()
-        }
+        headers = {'API-Key': self.key, 'API-Sign': sig.decode()}
         url = 'https://api.kraken.com' + path
         data = requests.post(url, data=params, headers=headers, timeout=10).json()['result']
         bal = {}

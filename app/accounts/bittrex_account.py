@@ -1,7 +1,3 @@
-#
-# Bittrex API connector adapted from: github.com/ericsomdahl/python-bittrex
-#
-
 import requests, json, urllib, time, hashlib, hmac
 
 from .. import Account, Updatable
@@ -17,7 +13,7 @@ class bittrex_account(Account):
             self.key = api_key
             self.secret = api_secret
         super().__init__(meta)
-        self.native = 'BTC'
+        self.native = ''
         self.btcprice = Updatable(self.load_btcprice)
 
     def load_balance(self):

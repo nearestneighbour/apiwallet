@@ -9,7 +9,7 @@ class eth_address(Account):
                 pubkey = f.readlines()[0].strip()
         self.pubkey = pubkey
         super().__init__(meta)
-        self.native = 'EOS'
+        self.native = 'ETH'
         self.data_ext = Updatable(self.load_data_ext)
 
     def load_balance(self):

@@ -1,7 +1,3 @@
-#
-# Authentication code adapted from: github.com/BitMEX/easy-data-scripts
-#
-
 import requests, json, urllib, time, hashlib, hmac
 
 from .. import Account
@@ -45,8 +41,7 @@ class BitmexAuth(requests.auth.AuthBase):
         return r
 
     def get_sig(self, api_secret, verb, url, nonce, data):
-        parsedURL = urllib.parse.urlparse(url)
-        path = parsedURL.path
+        path = urllib.parse.urlparse(url).path
         if data == None:
             data = ''
         sec = bytes(api_secret, 'utf8')

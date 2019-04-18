@@ -9,9 +9,8 @@ class eos_account(Account):
     def __init__(self, accname, meta={}):
         # accname: name of EOS account
         self.name = accname
-        self.native = 'EOS' # base currency
         super().__init__(meta)
-        self.native = 'EOS'
+        self.native = 'EOS' # base currency
         self.data_ext = Updatable(self.load_data_ext)
 
     def load_balance(self):

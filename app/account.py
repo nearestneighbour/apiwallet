@@ -13,7 +13,7 @@ class Account:
         self.meta = meta
         self.native = None
         self.balancedata = Updatable(self.load_balance)
-        self.pricedata = Updatable(self.load_prices)
+        #self.pricedata = Updatable(self.load_prices)
         self.btcprice = Updatable(self.load_btcprice)
 
     def total_native(self): # right name? total worth of account in native currency
