@@ -70,6 +70,11 @@ class eos_account(Account):
         contract = {}
         data = requests.get('https://api.newdex.io/v1/ticker/all').json()['data']
         for c in data:
+            if c['contract'] == 'eosio.token':
+                price['USD'] = 1/c['last']
+                continue
+            if c['symbol'][-3:] != 'eos':
+                continue
             if c['volume'] > 1000: # Only include relevant (high volume) tokens
                 price[c['currency']] = c['last']
                 contract[c['currency']] = c['contract']
@@ -85,7 +90,7 @@ class eos_account(Account):
         bal = {}
         url = 'http://mainnet.eoscanada.com/v1/chain/get_currency_balance'
         for c in prices:
-            if c in ['EOS','CPU','NET','DEL','RAM']:
+            if c in ['EOS','CPU','NET','DEL','RAM','USD','EUR']:
                 continue
             param = '{"code":"'+contracts[c]+'","account":"'+self.name+'","symbol":"' + c + '"}'
             data = requests.post(url, data=param).json()
