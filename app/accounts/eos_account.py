@@ -6,18 +6,47 @@ from .. import Account, Updatable
 # To do: add token data
 
 class eos_account(Account):
-    def __init__(self, accname, meta={}):
+    def __init__(self, accname, **kwargs):
         # accname: name of EOS account
         self.name = accname
-        super().__init__(meta)
-        self.native = 'EOS' # base currency
-        self.data_ext = Updatable(self.load_data_ext)
+        super().__init__(**kwargs)
+
+    @property
+    def balance(self):
+        return self.getbalance()
+
+    @property
+    def balance_ext(self):
+        return self.getbalance(False)
+
+    def getbalance(self, short=True):
+        b = self.balancedata()
+        if not short:
+            return b
+        pr = self.pricedata()
+        bs = {'EOS': 0}
+        for c in b:
+                bs['EOS'] += b[c] * pr[c]
+        return bs
 
     def load_balance(self):
-        # Load liquid/NET/CPU balance
+        return self.load_data()
+
+    def load_price(self):
+        pr = self.load_price_data()[0]
+        pr['BTC'] = 1/get_eosbtc()
+        return pr
+
+    def load_data(self):
+        balance = self.load_core_balance()
+        price, contract = self.load_price_data()
+        balance.update(self.load_token_balance(price,contract))
+        return balance
+
+    def load_core_balance(self):
+        # Load EOS balances (liquid, staked, delegated), RAM balance and RAM price
         url = 'http://mainnet.eoscanada.com/v1/chain/get_account'
-        param = '{"account_name":"' + self.name + '"}'
-        data = requests.post(url,data=param).json()
+        data = requests.post(url,data='{"account_name":"' + self.name + '"}').json()
         bal = {'EOS': 0, 'CPU': 0, 'NET': 0, 'DEL': 0}
         if 'core_liquid_balance' in data:
             bal['EOS'] = float(data['core_liquid_balance'][:-4]) # change 'EOS' to 'LIQ' oid?
@@ -33,44 +62,39 @@ class eos_account(Account):
             bal['NET'] += float(data['refund_request']['net_amount'][:-4])
         # Load RAM balance
         bal['RAM'] = float(data['ram_quota'])-float(data['ram_usage'])
-        # Load token balance
-        pr, con = self.data_ext() # Load list of existing tokens
-        balanceurl = 'http://mainnet.eoscanada.com/v1/chain/get_currency_balance'
-        for c in pr: # iterate over tokens
+        return bal
+
+    def load_price_data(self):
+        price = {'EOS':1.0, 'NET':1.0, 'CPU':1.0, 'DEL':1.0}
+        # Load token prices
+        contract = {}
+        data = requests.get('https://api.newdex.io/v1/ticker/all').json()['data']
+        for c in data:
+            if c['volume'] > 1000: # Only include relevant (high volume) tokens
+                price[c['currency']] = c['last']
+                contract[c['currency']] = c['contract']
+        # Load RAM price
+        url = 'http://mainnet.eoscanada.com/v1/chain/get_table_rows'
+        param = '{"scope":"eosio","code":"eosio","table":"rammarket","json":true}'
+        data = requests.post(url, data=param).json()['rows'][0]
+        price['RAM'] = float(data['quote']['balance'][:-4]) / float(data['base']['balance'][:-4])
+        return price, contract
+
+    def load_token_balance(self, prices, contracts):
+        # Load token balances+prices
+        bal = {}
+        url = 'http://mainnet.eoscanada.com/v1/chain/get_currency_balance'
+        for c in prices:
             if c in ['EOS','CPU','NET','DEL','RAM']:
                 continue
-            param = '{"code":"'+con[c]+'","account":"'+self.name+'","symbol":"' + c + '"}'
-            data = requests.post(balanceurl, data=param).json()
+            param = '{"code":"'+contracts[c]+'","account":"'+self.name+'","symbol":"' + c + '"}'
+            data = requests.post(url, data=param).json()
             if len(data) == 1:
                 data = data[0][:data[0].find(' ')] # convert from e.g. '10.45 IQ' to '10.45'
                 bal[c] = float(data)
         return bal
 
-    def load_prices(self):
-        return self.data_ext()[0]
-
-    def load_data_ext(self):
-        price = {}
-        contract = {}
-        # Load token prices
-        priceurl = 'https://api.newdex.io/v1/ticker/all'
-        pricedata = requests.get(priceurl).json()['data']
-        for c in pricedata:
-            if c['volume'] > 1000: # Only include relevant (i.e. high volume) tokens
-                price[c['currency']] = c['last']
-                contract[c['currency']] = c['contract']
-        # Load RAM price
-        ramurl = 'http://mainnet.eoscanada.com/v1/chain/get_table_rows'
-        param = '{"scope":"eosio","code":"eosio","table":"rammarket","json":true}'
-        ramdata = requests.post(ramurl, data=param).json()['rows'][0]
-        price['RAM'] = float(ramdata['quote']['balance'][:-4]) / float(ramdata['base']['balance'][:-4])
-        price['CPU'] = 1.0
-        price['NET'] = 1.0
-        price['EOS'] = 1.0
-        price['DEL'] = 1.0
-        return price, contract
-
-    def load_btcprice(self):
-        # Get EOS/BTC price from Kraken
-        url = 'https://api.kraken.com/0/public/Ticker?pair=eosxbt'
-        return float(requests.get(url).json()['result']['EOSXBT']['c'][0])
+def get_eosbtc():
+    # Get EOS/BTC price from Kraken
+    url = 'https://api.kraken.com/0/public/Ticker?pair=eosxbt'
+    return float(requests.get(url).json()['result']['EOSXBT']['c'][0])

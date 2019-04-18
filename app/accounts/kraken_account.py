@@ -8,7 +8,7 @@ from .. import Account, Updatable
 currencies = {'XXBT':'BTC','XETH':'ETH','ZEUR':'EUR','ZUSD':'USD','XLTC':'LTC','XXLM':'XLM'}
 
 class kraken_account(Account):
-    def __init__(self, api_key=None, api_secret=None, file=None, meta={}):
+    def __init__(self, api_key=None, api_secret=None, file=None, **kwargs):
         if api_key == None:
             with open(file) as f:
                 text = f.readlines()
@@ -17,9 +17,7 @@ class kraken_account(Account):
         else:
             self.key = api_key
             self.secret = api_secret
-        super().__init__(meta)
-        self.native = ''
-        self.prices = Updatable(self.load_prices)
+        super().__init__(**kwargs)
 
     def load_balance(self):
         path = '/0/private/Balance'
@@ -32,6 +30,7 @@ class kraken_account(Account):
         headers = {'API-Key': self.key, 'API-Sign': sig.decode()}
         url = 'https://api.kraken.com' + path
         data = requests.post(url, data=params, headers=headers, timeout=10).json()['result']
+
         bal = {}
         for curr in data:
             if float(data[curr]) < 0.00002:
@@ -42,13 +41,11 @@ class kraken_account(Account):
                 bal[curr] = float(data[curr])
         return bal
 
-    def load_prices(self):
+    def load_price(self):
         pr = {'BTC':1.0}
         pairs = 'XBTEUR,XBTUSD,'
-        for curr in self.balance():
-            if curr == 'EUR' or curr == 'USD' or curr == 'BTC':
-                continue
-            else:
+        for curr in self.balance:
+            if curr not in ['EUR','USD','BTC']:
                 pairs += curr + 'XBT,'
         url = 'https://api.kraken.com/0/public/Ticker'
         params = {'pair': pairs[:-1]}

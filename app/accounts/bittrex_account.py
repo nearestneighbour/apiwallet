@@ -3,7 +3,7 @@ import requests, json, urllib, time, hashlib, hmac
 from .. import Account, Updatable
 
 class bittrex_account(Account):
-    def __init__(self, api_key=None, api_secret=None, file=None, meta={}):
+    def __init__(self, api_key=None, api_secret=None, file=None, **kwargs):
         if api_key == None:
             with open(file) as f:
                 text = f.readlines()
@@ -12,9 +12,7 @@ class bittrex_account(Account):
         else:
             self.key = api_key
             self.secret = api_secret
-        super().__init__(meta)
-        self.native = ''
-        self.btcprice = Updatable(self.load_btcprice)
+        super().__init__(**kwargs)
 
     def load_balance(self):
         url =  'https://bittrex.com/api/v1.1/account/getbalances'
@@ -29,10 +27,10 @@ class bittrex_account(Account):
                     bal[curr['Currency']] = curr['Balance']
         return bal
 
-    def load_prices(self):
+    def load_price(self):
         url =  'https://bittrex.com/api/v1.1/public/getmarketsummaries'
         data = requests.get(url).json()['result']
-        bal = self.balance()
+        bal = self.balance
         pr = {}
         for market in data:
             if market['MarketName'][:4] == 'BTC-':

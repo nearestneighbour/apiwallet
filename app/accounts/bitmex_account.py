@@ -5,7 +5,7 @@ from .. import Account
 # To do: separate (un)realized profit, available margin etc
 
 class bitmex_account(Account):
-    def __init__(self, api_key=None, api_secret=None, file=None, testnet=False, meta={}):
+    def __init__(self, api_key=None, api_secret=None, file=None, testnet=False, **kwargs):
         if api_key == None:
             with open(file) as f:
                 text = f.readlines()
@@ -18,8 +18,7 @@ class bitmex_account(Account):
             self.base_url = 'https://testnet.bitmex.com/api/v1'
         else:
             self.base_url = 'https://bitmex.com/api/v1/'
-        super().__init__(meta)
-        self.native = 'BTC'
+        super().__init__(**kwargs)
 
     def load_balance(self):
         url = self.base_url + 'user/margin'

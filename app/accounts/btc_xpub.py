@@ -12,13 +12,12 @@ setup('mainnet')
 # Alternatives for address='nested'
 
 class btc_xpub(Account):
-    def __init__(self, xpub=None, file=None, meta={}):
+    def __init__(self, xpub=None, file=None, **kwargs):
         if xpub == None:
             with open(file) as f:
                 xpub = f.readlines()[0].strip()
         self.xpub = ExtendedPublicKey.decode(xpub)
-        super().__init__(meta)
-        self.native = 'BTC'
+        super().__init__(**kwargs)
 
     def load_balance(self):
         bal = 0
