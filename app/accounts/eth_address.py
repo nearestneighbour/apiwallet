@@ -8,26 +8,7 @@ class eth_address(Account):
             with open(file) as f:
                 pubkey = f.readlines()[0].strip()
         self.pubkey = pubkey
-        super().__init__(**kwargs)
-
-    @property
-    def balance(self):
-        return self.getbalance()
-
-    @property
-    def balance_ext(self):
-        return self.getbalance(False)
-
-    def getbalance(self, short=True):
-        b = self.balancedata()
-        if not short:
-            return b
-        pr = self.pricedata()
-        bs = {'ETH': b['ETH']}
-        for c in b:
-            if c != 'ETH':
-                bs['ETH'] += b[c] * pr[c]
-        return bs
+        super().__init__(corecurr = 'ETH', **kwargs)
 
     def load_balance(self):
         return self.load_data()[0]

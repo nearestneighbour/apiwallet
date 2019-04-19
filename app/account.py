@@ -11,6 +11,17 @@ class Account:
 
     @property
     def balance(self):
+        b = self.balancedata()
+        if 'corecurr' in self.meta: # Only True for smart contract accounts
+            pr = self.pricedata()
+            bs = {self.meta['corecurr']: 0}
+            for c in b:
+                    bs[self.meta['corecurr']] += b[c] * pr[c]
+            return bs
+        return b
+
+    @property
+    def balance_ext(self):
         return self.balancedata()
 
     def balance_tocurr(self, curr='BTC'):

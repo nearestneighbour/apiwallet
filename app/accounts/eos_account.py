@@ -9,25 +9,7 @@ class eos_account(Account):
     def __init__(self, accname, **kwargs):
         # accname: name of EOS account
         self.name = accname
-        super().__init__(**kwargs)
-
-    @property
-    def balance(self):
-        return self.getbalance()
-
-    @property
-    def balance_ext(self):
-        return self.getbalance(False)
-
-    def getbalance(self, short=True):
-        b = self.balancedata()
-        if not short:
-            return b
-        pr = self.pricedata()
-        bs = {'EOS': 0}
-        for c in b:
-                bs['EOS'] += b[c] * pr[c]
-        return bs
+        super().__init__(corecurr = 'EOS', **kwargs)
 
     def load_balance(self):
         return self.load_data()
