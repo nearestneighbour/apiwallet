@@ -3,6 +3,9 @@ import requests
 from .. import Account, Updatable
 
 class eth_address(Account):
+    def __init__(self, **kwargs):
+        super().__init__(core = 'ETH', **kwargs)
+
     def load_balance(self):
         return self.load_data()[0]
 
@@ -19,6 +22,8 @@ class eth_address(Account):
         for t in data['tokens']:
             ti = t['tokenInfo']
             if ti['price'] == False: # no price data available; irrelevant token
+                continue
+            if len(ti['symbol']) == 0: # ignore nameless token
                 continue
             bal[ti['symbol']] = t['balance'] / (10**float(ti['decimals']))
             pr[ti['symbol']] = float(ti['price']['rate']) / ethusd
