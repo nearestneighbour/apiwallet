@@ -5,6 +5,7 @@ from .updatable import Updatable
 
 class Account:
     def __init__(self, **kwargs):
+        self.core = kwargs.pop('core', None)
         self.meta = kwargs
         self.balancedata = Updatable(self.load_balance)
         self.pricedata = Updatable(self.load_price)
@@ -12,9 +13,9 @@ class Account:
     @property
     def balance(self):
         b = self.balancedata()
-        if 'corecurr' in self.meta: # Only True for smart contract accounts
+        if self.core: # Only (not None) for smart contract accounts
             pr = self.pricedata()
-            return {self.meta['corecurr']: sum([b[c] * pr[c] for c in b])}
+            return {self.core: sum([b[c] * pr[c] for c in b])}
         return b
 
     @property

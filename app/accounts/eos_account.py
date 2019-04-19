@@ -1,15 +1,12 @@
 import requests
-from time import time
 
 from .. import Account, Updatable
 
-# To do: add token data
-
 class eos_account(Account):
-    def __init__(self, accname, **kwargs):
-        # accname: name of EOS account
-        self.name = accname
-        super().__init__(corecurr = 'EOS', **kwargs)
+    def __init__(self, **kwargs):
+        # kwargs: accname (required)
+        self.name = kwargs.pop('accname')
+        super().__init__(core = 'EOS', **kwargs)
 
     def load_balance(self):
         return self.load_data()

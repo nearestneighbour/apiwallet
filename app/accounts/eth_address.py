@@ -3,12 +3,13 @@ import requests
 from .. import Account, Updatable
 
 class eth_address(Account):
-    def __init__(self, pubkey=None, file=None, **kwargs):
-        if pubkey == None:
-            with open(file) as f:
-                pubkey = f.readlines()[0].strip()
-        self.pubkey = pubkey
-        super().__init__(corecurr = 'ETH', **kwargs)
+    def __init__(self, **kwargs):
+        # kwargs: pubkey=None, file=None
+        if 'pubkey' not in kwargs:
+            with open(kwargs.pop('file')) as f:
+                kwargs['pubkey'] = f.readlines()[0].strip()
+        self.pubkey = kwargs.pop('pubkey')
+        super().__init__(core = 'ETH', **kwargs)
 
     def load_balance(self):
         return self.load_data()[0]

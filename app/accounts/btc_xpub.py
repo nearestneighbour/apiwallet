@@ -12,11 +12,12 @@ setup('mainnet')
 # Alternatives for address='nested'
 
 class btc_xpub(Account):
-    def __init__(self, xpub=None, file=None, **kwargs):
-        if xpub == None:
-            with open(file) as f:
-                xpub = f.readlines()[0].strip()
-        self.xpub = ExtendedPublicKey.decode(xpub)
+    def __init__(self, **kwargs):
+        # kwargs: xpub=None, file=None
+        if 'xpub' not in kwargs:
+            with open(kwargs.pop('file')) as f:
+                kwargs['xpub'] = f.readlines()[0].strip()
+        self.xpub = ExtendedPublicKey.decode(kwargs.pop('xpub'))
         super().__init__(**kwargs)
 
     def load_balance(self):
@@ -39,7 +40,7 @@ def derive_key(xpub, change, index, address='nested'):
     hash = xpub.derive(path).key.hash()
     if address == 'nested':
         return str(P2shAddress.from_script(P2wpkhAddress(hash, version=0).to_script()))
-    return None # raise error
+    raise NotImplementedError("Only 'nested' xpub addresses are supported")
 
 def address_is_used(addr):
     url = 'https://blockchain.info/q/getreceivedbyaddress/' + addr

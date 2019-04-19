@@ -1,22 +1,21 @@
-import requests, json, urllib, time, hashlib, hmac, base64
+import requests, urllib, time, hashlib, hmac, base64
 
 from .. import Account, Updatable
-
-# TO DO; choose native currency (EUR, USD, BTC, maybe ETH)
 
 # Kraken gives weird names to currencies
 currencies = {'XXBT':'BTC','XETH':'ETH','ZEUR':'EUR','ZUSD':'USD','XLTC':'LTC','XXLM':'XLM'}
 
 class kraken_account(Account):
-    def __init__(self, api_key=None, api_secret=None, file=None, **kwargs):
-        if api_key == None:
-            with open(file) as f:
+    def __init__(self, **kwargs):
+        # kwargs: api_key=None, api_secret=None, file=None
+        if 'api_key' not in kwargs:
+            with open(kwargs.pop('file')) as f:
                 text = f.readlines()
                 self.key = text[0].strip()
                 self.secret = text[1].strip()
         else:
-            self.key = api_key
-            self.secret = api_secret
+            self.key = kwargs.pop('api_key')
+            self.secret = kwargs.pop('api_secret')
         super().__init__(**kwargs)
 
     def load_balance(self):
