@@ -3,14 +3,6 @@ import requests
 from .. import Account, Updatable
 
 class eth_address(Account):
-    def __init__(self, **kwargs):
-        # kwargs: pubkey=None, file=None
-        if 'pubkey' not in kwargs:
-            with open(kwargs.pop('file')) as f:
-                kwargs['pubkey'] = f.readlines()[0].strip()
-        self.pubkey = kwargs.pop('pubkey')
-        super().__init__(core = 'ETH', **kwargs)
-
     def load_balance(self):
         return self.load_data()[0]
 
@@ -18,7 +10,7 @@ class eth_address(Account):
         return self.load_data()[1]
 
     def load_data(self):
-        url = 'http://api.ethplorer.io/getAddressInfo/' + self.pubkey + '?apiKey=freekey'
+        url = 'http://api.ethplorer.io/getAddressInfo/' + self.address + '?apiKey=freekey'
         data = requests.get(url,timeout=15).json()
         bal = {'ETH':data['ETH']['balance']} # ETH balance
         ethusd = get_ethusd()

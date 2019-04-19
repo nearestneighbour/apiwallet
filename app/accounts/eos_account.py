@@ -4,8 +4,8 @@ from .. import Account, Updatable
 
 class eos_account(Account):
     def __init__(self, **kwargs):
-        # kwargs: accname (required)
-        self.name = kwargs.pop('accname')
+        # kwargs: account (required)
+        self.account = kwargs.pop('account')
         super().__init__(core = 'EOS', **kwargs)
 
     def load_balance(self):
@@ -25,7 +25,7 @@ class eos_account(Account):
     def load_core_balance(self):
         # Load EOS balances (liquid, staked, delegated), RAM balance and RAM price
         url = 'http://mainnet.eoscanada.com/v1/chain/get_account'
-        data = requests.post(url,data='{"account_name":"' + self.name + '"}').json()
+        data = requests.post(url,data='{"account_name":"' + self.account + '"}').json()
         bal = {'EOS': 0, 'CPU': 0, 'NET': 0, 'DEL': 0}
         if 'core_liquid_balance' in data:
             bal['EOS'] = float(data['core_liquid_balance'][:-4]) # change 'EOS' to 'LIQ' oid?
@@ -71,7 +71,7 @@ class eos_account(Account):
         for c in prices:
             if c in ['EOS','CPU','NET','DEL','RAM','USD','EUR']:
                 continue
-            param = '{"code":"'+contracts[c]+'","account":"'+self.name+'","symbol":"' + c + '"}'
+            param = '{"code":"'+contracts[c]+'","account":"'+self.account+'","symbol":"'+c+'"}'
             data = requests.post(url, data=param).json()
             if len(data) == 1:
                 data = data[0][:data[0].find(' ')] # convert from e.g. '10.45 IQ' to '10.45'

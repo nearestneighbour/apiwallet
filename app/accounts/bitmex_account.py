@@ -6,19 +6,9 @@ from .. import Account
 
 class bitmex_account(Account):
     def __init__(self, **kwargs):
-        # kwargs: api_key=None, api_secret=None, file=None, testnet=False
-        if 'api_key' not in kwargs:
-            with open(kwargs.pop('file')) as f:
-                text = f.readlines()
-                self.key = text[0].strip()
-                self.secret = text[1].strip()
-        else:
-            self.key = kwargs.pop('api_key')
-            self.secret = kwargs.pop('api_secret')
-        if kwargs.pop('testnet', False):
-            self.base_url = 'https://testnet.bitmex.com/api/v1'
-        else:
-            self.base_url = 'https://bitmex.com/api/v1/'
+        # kwargs: testnet=False
+        t = kwargs.pop('testnet', False)
+        self.base_url = 'https://testnet.bitmex.com/api/v1' if t else 'https://bitmex.com/api/v1/'
         super().__init__(**kwargs)
 
     def load_balance(self):

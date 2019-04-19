@@ -13,12 +13,8 @@ setup('mainnet')
 
 class btc_xpub(Account):
     def __init__(self, **kwargs):
-        # kwargs: xpub=None, file=None
-        if 'xpub' not in kwargs:
-            with open(kwargs.pop('file')) as f:
-                kwargs['xpub'] = f.readlines()[0].strip()
-        self.xpub = ExtendedPublicKey.decode(kwargs.pop('xpub'))
         super().__init__(**kwargs)
+        self.xpub = ExtendedPublicKey.decode(self.address)
 
     def load_balance(self):
         bal = 0

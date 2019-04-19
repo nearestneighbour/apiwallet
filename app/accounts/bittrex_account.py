@@ -3,18 +3,6 @@ import requests, urllib, time, hashlib, hmac
 from .. import Account, Updatable
 
 class bittrex_account(Account):
-    def __init__(self, **kwargs):
-        # kwargs: api_key=None, api_secret=None, file=None
-        if 'api_key' not in kwargs:
-            with open(kwargs.pop('file')) as f:
-                text = f.readlines()
-                self.key = text[0].strip()
-                self.secret = text[1].strip()
-        else:
-            self.key = kwargs.pop('api_key')
-            self.secret = kwargs.pop('api_secret')
-        super().__init__(**kwargs)
-
     def load_balance(self):
         url =  'https://bittrex.com/api/v1.1/account/getbalances'
         nonce = str(int(time.time() * 1000))

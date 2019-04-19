@@ -6,18 +6,6 @@ from .. import Account, Updatable
 currencies = {'XXBT':'BTC','XETH':'ETH','ZEUR':'EUR','ZUSD':'USD','XLTC':'LTC','XXLM':'XLM'}
 
 class kraken_account(Account):
-    def __init__(self, **kwargs):
-        # kwargs: api_key=None, api_secret=None, file=None
-        if 'api_key' not in kwargs:
-            with open(kwargs.pop('file')) as f:
-                text = f.readlines()
-                self.key = text[0].strip()
-                self.secret = text[1].strip()
-        else:
-            self.key = kwargs.pop('api_key')
-            self.secret = kwargs.pop('api_secret')
-        super().__init__(**kwargs)
-
     def load_balance(self):
         path = '/0/private/Balance'
         params = {'nonce': int(1000*time.time())}

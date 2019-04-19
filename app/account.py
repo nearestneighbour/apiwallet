@@ -5,6 +5,21 @@ from .updatable import Updatable
 
 class Account:
     def __init__(self, **kwargs):
+        # kwargs:
+        # key+secret or file for exchange accounts (Kraken, Bittrex, Bitmex, ...)
+        # address or file for currency accounts (BTC, ETH, ...)
+        # core for smart contract accounts (ETH, EOS, ...)
+        if 'key' in kwargs:
+            self.key = kwargs.pop('key')
+            self.secret = kwargs.pop('secret', None)
+        elif 'address' in kwargs:
+            self.address = kwargs.pop('address')
+        elif 'file' in kwargs:
+            with open(kwargs.pop('file')) as f:
+                text = f.readlines()
+                for t in text:
+                    var,val = t.strip().split(':')
+                    exec("self." + var + " = '" + val + "'")
         self.core = kwargs.pop('core', None)
         self.meta = kwargs
         self.balancedata = Updatable(self.load_balance)
