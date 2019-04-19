@@ -1,6 +1,7 @@
 # This class does ...
 
 import requests
+import pandas as pd
 
 from .updatable import Updatable
 
@@ -34,7 +35,15 @@ class Wallet:
     def balance_tocurr(self, curr='BTC'):
         b = {}
         for acc in self.accounts:
-            subb = acc.balance_tocurr(curr)
+            # First check if account can convert, otherwise try self
+            try:
+                subb = acc.balance_tocurr(curr)
+            except NotImplementedError:
+                if curr in self.btcprice:
+                    subb = acc.balance_tocurr()
+                    subb = {c:subb[c]*self.btcprice[curr]() for c in subb}
+            except:
+                raise NotImplementedError("Can't convert to currency " + curr)
             for c in subb:
                 b[c] = subb[c] + (b[c] if c in b else 0)
         return b
@@ -43,13 +52,18 @@ class Wallet:
         return {c:b[c] for c in b if b[c]>=thr}
 
     def total(self, curr='BTC'):
-        try:
-            b = self.balance_tocurr(curr)
-        except NotImplementedError:
-            if curr in self.btcprice:
-                b = self.balance_tocurr('BTC')
-                b = {c:b[c]*self.btcprice[curr]() for c in b}
+        b = self.balance_tocurr(curr)
         return sum([b[c] for c in b])
+
+    def to_dataframe(self, curr=['','BTC','EUR']):
+        df = pd.DataFrame()
+        for c in curr:
+            if c == '':
+                b = self.balance
+            else:
+                b = self.balance_tocurr(c)
+            df[c] = pd.Series(b)
+        return df
 
 def get_btceur():
     # Get BTC/EUR price from Kraken

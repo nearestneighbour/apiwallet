@@ -38,10 +38,10 @@ class Account:
         return self.balancedata()
 
     def balance_tocurr(self, curr='BTC'):
-        b = self.balance
         pr = self.pricedata()
         if curr not in pr:
             raise NotImplementedError("Can't convert to currency " + curr)
+        b = self.balance
         return {c: b[c] * pr[c] / pr[curr] for c in b}
 
     def load_balance(self):
