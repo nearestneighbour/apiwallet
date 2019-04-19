@@ -1,92 +1,62 @@
 # This class does ...
 
-# to do:
-# balance(curr) should return total balance of a currency
-
 import requests
-import json
 
 from .updatable import Updatable
 
 class Wallet:
-    def __init__(self, *args):
+    def __init__(self, *args, **kwargs):
         # Create new wallet object and add accounts
         # *args: account objects as specified by Account Standard
-        self.base = 'BTC'
-        self.accounts = []
-        for acc in args:
-            self.add_account(acc)
-        self.pr = {'EUR':Updatable(load_btceur, 60),'USD':Updatable(load_btcusd, 60)}
+        # kwargs: meta-info about wallet
+        self.accounts = list(args)
+        self.meta = kwargs
+        self.btcprice = {'EUR':Updatable(get_btceur, 60),'USD':Updatable(get_btcusd, 60)}
 
-    def add_account(self, account):
-        # Add account to wallet. If no account.data['name'] is specified, account.data['name']
-        # is set to a unique number. Accounts are then sorted by name.
-        namedacc = [acc for acc in self.accounts if not acc.meta['name'].isdigit()]
-        idacc = [acc for acc in self.accounts if acc.meta['name'].isdigit()]
-        if 'name' not in account.meta:
-            id = len(idacc)
-            account.meta['name'] = str(id)
-            self.accounts += [account]
-        else:
-            namedacc += [account]
-            k = lambda x: x.meta['name'] # Sorting function
-            self.accounts = sorted(namedacc, key=k)
-            self.accounts += idacc
-
-
-    def total_btc(self):
-        btc = 0
+    @property
+    def balance(self):
+        b = {}
         for acc in self.accounts:
-            btc += acc.total_native() * acc.btcprice()
-        return btc
+            subb = acc.balance
+            for c in subb:
+                b[c] = subb[c] + (b[c] if c in b else 0)
+        return b
 
-    def total_curr(self, curr=None):
-        # Get total worth of accounts in curr, e.g. 'USD' or 'EUR'
-        return self.total_btc() * self.pr[curr]()
-
-    def balance(self, curr=None):
-        balance = {}
+    @property
+    def balance_ext(self):
+        b = {}
         for acc in self.accounts:
-            bal = acc.balance(curr)
-            for b in bal:
-                if b not in balance:
-                    balance[b] = bal[b]
-                else:
-                    balance[b] += bal[b]
-        return balance
+            subb = acc.balance_ext
+            for c in subb:
+                b[c] = subb[c] + (b[c] if c in b else 0)
+        return b
 
-    def balance_btc(self, curr=None):
-        balance = {}
+    def balance_tocurr(self, curr='BTC'):
+        b = {}
         for acc in self.accounts:
-            bal = acc.balance_btc(curr)
-            for b in bal:
-                if b not in balance:
-                    balance[b] = bal[b]
-                else:
-                    balance[b] += bal[b]
-        return balance
+            subb = acc.balance_tocurr(curr)
+            for c in subb:
+                b[c] = subb[c] + (b[c] if c in b else 0)
+        return b
 
-    """ include or not???
-    def save(self, fname):
-        # Save wallet object to file using pickle module
-        # Does this store class functions as well? (i.e. does it not update with the code)
-        with open(fname, 'wb') as f:
-            pickle.dump(self, f)
-    """
+    def filter_balance(self, b, thr=0):
+        return {c:b[c] for c in b if b[c]>=thr}
 
-def load_btceur():
+    def total(self, curr='BTC'):
+        try:
+            b = self.balance_tocurr(curr)
+        except NotImplementedError:
+            if curr in self.btcprice:
+                b = self.balance_tocurr('BTC')
+                b = {c:b[c]*self.btcprice[curr]() for c in b}
+        return sum([b[c] for c in b])
+
+def get_btceur():
     # Get BTC/EUR price from Kraken
     url = 'https://api.kraken.com/0/public/Ticker?pair=xbteur'
     return float(requests.get(url).json()['result']['XXBTZEUR']['c'][0])
 
-def load_btcusd():
+def get_btcusd():
     # Get BTC/USD price from Kraken
     url = 'https://api.kraken.com/0/public/Ticker?pair=xbtusd'
     return float(requests.get(url).json()['result']['XXBTZUSD']['c'][0])
-
-""" include or not??
-def load(fname):
-    # Load wallet object from file using pickle module
-    with open(fname, 'rb') as f:
-        return pickle.load(f)
-"""
