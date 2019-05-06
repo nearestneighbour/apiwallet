@@ -2,6 +2,8 @@ import requests
 
 from .. import Account, Updatable
 
+corebalances = ['EOS','liquid','staked_CPU','staked_NET','delegated','refunding']
+
 class eos_account(Account):
     def __init__(self, **kwargs):
         # kwargs: account (required)
@@ -26,25 +28,26 @@ class eos_account(Account):
         # Load EOS balances (liquid, staked, delegated), RAM balance and RAM price
         url = 'http://mainnet.eoscanada.com/v1/chain/get_account'
         data = requests.post(url,data='{"account_name":"' + self.account + '"}').json()
-        bal = {'EOS': 0, 'CPU': 0, 'NET': 0, 'DEL': 0}
+        bal = {}
         if 'core_liquid_balance' in data:
-            bal['EOS'] = float(data['core_liquid_balance'][:-4]) # change 'EOS' to 'LIQ' oid?
-        if data['self_delegated_bandwidth'] != None:
-            bal['CPU'] = float(data['self_delegated_bandwidth']['cpu_weight'][:-4])
-            bal['NET'] = float(data['self_delegated_bandwidth']['net_weight'][:-4])
-            bal['DEL'] = data['voter_info']['staked'] / 10000
-            bal['DEL'] -= (bal['CPU'] + bal['NET'])
-        elif data['voter_info']['staked'] > 0:
-            bal['DEL'] = data['voter_info']['staked'] / 10000
-        if data['refund_request'] != None: # Add refunding EOS to staked EOS
-            bal['CPU'] += float(data['refund_request']['cpu_amount'][:-4])
-            bal['NET'] += float(data['refund_request']['net_amount'][:-4])
+            bal['liquid'] = float(data['core_liquid_balance'][:-4])
+        cpu = float(data['total_resources']['cpu_weight'][:-4])
+        net = float(data['total_resources']['net_weight'][:-4])
+        dlg = data['voter_info']['staked'] / 10000 - (net+cpu)
+        if dlg > 0:
+            bal['staked_CPU'] = cpu
+            bal['staked_NET'] = net
+            bal['delegated'] = dlg
+        if data['refund_request'] != None:
+            bal['refunding'] = float(data['refund_request']['cpu_amount'][:-4])
+            bal['refunding'] += float(data['refund_request']['net_amount'][:-4])
         # Load RAM balance
         bal['RAM'] = float(data['ram_quota'])-float(data['ram_usage'])
         return bal
 
     def load_price_data(self):
-        price = {'EOS':1.0, 'NET':1.0, 'CPU':1.0, 'DEL':1.0}
+        price = {x: 1.0 for x in corebalances}
+        #price = {'EOS':1,'liquid':1,'staked_CPU':1,'staked_NET':1,'delegated':1,'refunding':1}
         # Load token prices
         contract = {}
         data = requests.get('https://api.newdex.io/v1/ticker/all').json()['data']
@@ -69,7 +72,7 @@ class eos_account(Account):
         bal = {}
         url = 'http://mainnet.eoscanada.com/v1/chain/get_currency_balance'
         for c in prices:
-            if c in ['EOS','CPU','NET','DEL','RAM','USD','EUR']:
+            if c in corebalances + ['RAM','USD','EUR']:
                 continue
             param = '{"code":"'+contracts[c]+'","account":"'+self.account+'","symbol":"'+c+'"}'
             data = requests.post(url, data=param).json()
