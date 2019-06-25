@@ -9,10 +9,13 @@ class Wallet:
     def __init__(self, *args, **kwargs):
         # Create new wallet object and add accounts
         # *args: account objects as specified by Account Standard
-        # kwargs: meta-info about wallet
+        # kwargs:
+        # # 'threshold': type dict
+        # # key-pair wise meta-info about wallet
         self.accounts = list(args)
+        self.threshold = kwargs.pop('threshold', 0)
         self.meta = kwargs
-        self.btcprice = {'EUR':Updatable(get_btceur, 60),'USD':Updatable(get_btcusd, 60)}
+        self.prices = {'EUR':Updatable(get_btceur, 60),'USD':Updatable(get_btcusd, 60)}
 
     @property
     def balance(self):
@@ -39,9 +42,9 @@ class Wallet:
             try:
                 subb = acc.balance_tocurr(curr)
             except NotImplementedError:
-                if curr in self.btcprice:
+                if curr in self.prices:
                     subb = acc.balance_tocurr()
-                    subb = {c:subb[c]*self.btcprice[curr]() for c in subb}
+                    subb = {c:subb[c]*self.prices[curr]() for c in subb}
             except:
                 raise NotImplementedError("Can't convert to currency " + curr)
             for c in subb:
@@ -55,11 +58,15 @@ class Wallet:
         b = self.balance_tocurr(curr)
         return sum([b[c] for c in b])
 
-    def to_dataframe(self, curr=['','BTC','EUR']):
+    def to_dataframe(self, curr=['','BTC','EUR','PCT']):
         df = pd.DataFrame()
         for c in curr:
             if c == '':
                 b = self.balance
+            elif c == 'PCT':
+                b = self.balance_tocurr('BTC')
+                t = sum([b[c] for c in b])
+                b = {curr:100*b[curr]/t for curr in b}
             else:
                 b = self.balance_tocurr(c)
             df[c] = pd.Series(b)

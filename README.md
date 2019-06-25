@@ -17,3 +17,5 @@ Finally, each of the class mentioned above makes use of the Updatable class. The
 * Finish demonstration with Jupyter notebook, upload notebook to https://nbviewer.jupyter.org/
 * Create demonstration test wallet with 'fake' keys (testwallet.py)
 * Remove arbitrary, constant timeout values
+* Update documentation to Sphinx compatible format, upload to readthedocs
+* Add ability to threshold balances in wallet class

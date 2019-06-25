@@ -6,9 +6,9 @@ from .updatable import Updatable
 class Account:
     def __init__(self, **kwargs):
         # kwargs:
-        # key+secret or file for exchange accounts (Kraken, Bittrex, Bitmex, ...)
-        # address or file for currency accounts (BTC, ETH, ...)
-        # core for smart contract accounts (ETH, EOS, ...)
+        # # 'key'+'secret' or 'file' for exchange accounts (Kraken, Bittrex, Bitmex, ...)
+        # # 'address' or 'file' for currency accounts (BTC, ETH, ...)
+        # # 'core' for smart contract accounts (ETH, EOS, ...)
         if 'key' in kwargs:
             self.key = kwargs.pop('key')
             self.secret = kwargs.pop('secret', None)

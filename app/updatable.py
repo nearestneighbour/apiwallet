@@ -3,7 +3,7 @@
 from time import time
 
 class Updatable:
-    def __init__(self, updatefunc, interval=300, update=False):
+    def __init__(self, updatefunc, interval=600, update=False):
         self.updatefunc = updatefunc
         if update:
             self.update() # Set self.data and self.updatetime

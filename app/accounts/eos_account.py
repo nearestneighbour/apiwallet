@@ -1,4 +1,5 @@
 import requests
+from time import sleep
 
 from .. import Account, Updatable
 
@@ -50,7 +51,11 @@ class eos_account(Account):
         #price = {'EOS':1,'liquid':1,'staked_CPU':1,'staked_NET':1,'delegated':1,'refunding':1}
         # Load token prices
         contract = {}
-        data = requests.get('https://api.newdex.io/v1/ticker/all').json()['data']
+        data = requests.get('https://api.newdex.io/v1/ticker/all').json()
+        while 'data' not in data:
+            data = requests.get('https://api.newdex.io/v1/ticker/all').json()
+            sleep(1)
+        data = data['data']
         for c in data:
             if c['contract'] == 'eosio.token':
                 price['USD'] = 1/c['last']
