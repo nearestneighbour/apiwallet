@@ -11,7 +11,9 @@ class bittrex_account(Account):
         data = requests.get(url, headers={"apisign": sig}).json()['result']
         bal = {}
         for curr in data:
-            if curr['Balance'] != None:
+            if curr['Currency'] == 'BTXCRD': # Useless currency (Bittrex Credits)
+                continue
+            elif curr['Balance'] != None:
                 if curr['Balance'] > 0.00002:
                     bal[curr['Currency']] = curr['Balance']
         return bal
