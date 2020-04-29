@@ -21,14 +21,15 @@ class btc_xpub(Account):
         for change in [0, 1]:
             used = True
             i = 0
-            while used:
+            while True:
                 pk = derive_key(self.xpub, change, index=i)
                 i += 1
-                url = 'https://blockchain.info/q/addressbalance/' + pk
-                b = float(requests.get(url, timeout=10).text) / 100000000
+                url = 'https://api.blockcypher.com/v1/btc/main/addrs/'+pk+'/balance'
+                data = requests.get(url, timeout=10).json()
+                b = float(data['balance']) / 100000000
                 bal += b
-                if b == 0:
-                    used = address_is_used(pk)
+                if float(data['total_received']) == 0:
+                    break
         return {'BTC':bal}
 
 def derive_key(xpub, change, index, address='nested'):
