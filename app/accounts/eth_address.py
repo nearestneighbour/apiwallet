@@ -17,8 +17,8 @@ class eth_address(Account):
         data = requests.get(url,timeout=15).json()
         bal = {'ETH':data['ETH']['balance']} # ETH balance
         ethusd = get_ethusd()
-        ethbtc = 1/get_ethbtc()
-        pr = {'ETH':1.0, 'USD':1/ethusd, 'BTC': ethbtc}
+        ethbtc = get_ethbtc()
+        pr = {'ETH': 1.0, 'USD': 1/ethusd, 'BTC': 1/ethbtc}
         for t in data['tokens']:
             ti = t['tokenInfo']
             if ti['price'] == False: # no price data available; irrelevant token

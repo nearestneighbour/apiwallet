@@ -27,7 +27,7 @@ class eos_account(Account):
 
     def load_core_balance(self):
         # Load EOS balances (liquid, staked, delegated), RAM balance and RAM price
-        url = 'http://bp.cryptolions.io/v1/chain/get_account'
+        url = 'https://api.eosn.io/v1/chain/get_account'
         data = requests.post(url,data='{"account_name":"' + self.account + '"}').json()
         bal = {}
         if 'core_liquid_balance' in data:
@@ -66,7 +66,7 @@ class eos_account(Account):
                 price[c['currency']] = c['last']
                 contract[c['currency']] = c['contract']
         # Load RAM price
-        url = 'http://bp.cryptolions.io/v1/chain/get_table_rows'
+        url = 'https://api.eosn.io/v1/chain/get_table_rows'
         param = '{"scope":"eosio","code":"eosio","table":"rammarket","json":true}'
         data = requests.post(url, data=param).json()['rows'][0]
         price['RAM'] = float(data['quote']['balance'][:-4]) / float(data['base']['balance'][:-4])
@@ -75,7 +75,7 @@ class eos_account(Account):
     def load_token_balance(self, prices, contracts):
         # Load token balances+prices
         bal = {}
-        url = 'http://bp.cryptolions.io/v1/chain/get_currency_balance'
+        url = 'https://api.eosn.io/v1/chain/get_currency_balance'
         for c in prices:
             if c in corebalances + ['RAM','USD','EUR']:
                 continue
